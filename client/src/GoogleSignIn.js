@@ -6,7 +6,7 @@ function GoogleSignIn() {
  
  const responseMessage = (response) => {
     // console.log(response);
-   axios.post('/google-auth', {
+   axios.post('https://random-backend-yjzj.onrender.com/google-auth', {
      credential: response.credential,
    })
    .then(response => {
