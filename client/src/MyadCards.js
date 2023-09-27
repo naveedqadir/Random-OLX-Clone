@@ -29,7 +29,7 @@ function MyadCards() {
     fetchAds();
   }, []);
 
-  if (ads.length === 0){
+  if (ads.length === 0 && isLoading === false) {
     return <NotListedAnything />
   }
 

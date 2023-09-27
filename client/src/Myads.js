@@ -39,7 +39,7 @@ export default function MyAds() {
     fetchAds();
   }, []);
 
-  if (ads.length === 0){
+  if (ads.length === 0 && isLoading === false) {
     return <div>
       <CatNavbar />
    <NotListedAnything />
