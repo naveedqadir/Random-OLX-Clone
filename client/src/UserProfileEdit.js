@@ -80,7 +80,7 @@ export default function UserProfileEdit() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`/verification-status?email=${authemail}`);
+        const response = await fetch(`https://random-backend-yjzj.onrender.com/verification-status?email=${authemail}`);
         const data = await response.json();
         // Update the isVerified state based on the response
         setIsVerified(data.isVerified);
@@ -105,7 +105,7 @@ export default function UserProfileEdit() {
   const handleSendOtp = async (event) => {
     setSending(true);
     try {
-      const response = await axios.post("/send-verification-email", { email });
+      const response = await axios.post("https://random-backend-yjzj.onrender.com/send-verification-email", { email });
       // Handle the response from the server
       console.log(response); // or perform any other action
       Setverifyscr(true);
@@ -140,7 +140,7 @@ export default function UserProfileEdit() {
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await axios.post(
-        "/verify-email",
+        "https://random-backend-yjzj.onrender.com/verify-email",
         { pin: value, email: email },
         {
           headers: {
@@ -233,7 +233,7 @@ export default function UserProfileEdit() {
       const authToken = localStorage.getItem('authToken');
   
       const response = await axios.post(
-        '/profile_edit',
+        'https://random-backend-yjzj.onrender.com/profile_edit',
         { name, imageUrl: imageUrlToSend, phoneNumber },
         {
           headers: {

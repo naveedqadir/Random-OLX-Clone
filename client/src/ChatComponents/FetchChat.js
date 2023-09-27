@@ -33,7 +33,7 @@ export default function FetchChat({ id, toData }) {
       const fetchNewMessages = async () => {
         const currentMessageLength = newMessages.length;
         try {
-          const response = await axios.get("/api/new-messages", {
+          const response = await axios.get("https://random-backend-yjzj.onrender.com/api/new-messages", {
             params: { id }, // Pass data as query parameters
             headers: {
               Authorization: `Bearer ${authToken}`,

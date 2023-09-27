@@ -12,7 +12,7 @@ function Home() {
 
   const getProducts = async () => {
     try {
-      const response = await axios.get("/getProducts");
+      const response = await axios.get("https://random-backend-yjzj.onrender.com/getProducts");
       setProducts(response.data);
       setLoading(false);
     } catch (err) {

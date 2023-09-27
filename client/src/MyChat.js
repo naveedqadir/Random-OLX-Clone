@@ -54,7 +54,7 @@ export default function MyChat() {
   useEffect(() => {
     if (id && useremail) {
       axios
-        .get(`/profilesearch?useremail=${useremail}`)
+        .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
         .then((response) => {
           setProfileData(response.data);
           setIsLoading(false);
@@ -100,7 +100,7 @@ export default function MyChat() {
     setIsLoading(true);
     axios
       .post(
-        `/deletechat/${id}`,
+        `https://random-backend-yjzj.onrender.com/deletechat/${id}`,
         {},
         {
           headers: {

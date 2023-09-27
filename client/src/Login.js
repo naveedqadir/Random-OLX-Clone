@@ -40,7 +40,7 @@ function Login() {
       var name = document.getElementById("name").value;
       if (password === rpassword){
       axios
-      .post("/register", {
+      .post("https://random-backend-yjzj.onrender.com/register", {
           email,password,name,
       })
       .then((response) => {
@@ -68,7 +68,7 @@ function Login() {
         var email = document.getElementById("email").value;
         var password = document.getElementById("password").value;
         axios
-        .post("/login", {
+        .post("https://random-backend-yjzj.onrender.com/login", {
             email,password
         })
         .then((response) => {

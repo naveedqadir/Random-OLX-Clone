@@ -30,7 +30,7 @@ export default function SearchProfile() {
   }
   useEffect(() => {
     axios
-      .get(`/profilesearch?useremail=${useremail}`)
+      .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
       .then((response) => {
         setProfileData(response.data);
         setIsLoading(false);
@@ -42,7 +42,7 @@ export default function SearchProfile() {
     const getProducts = async () => {
       try {
         const response = await axios.get(
-          `/getProductsbyemail?useremail=${useremail}`
+          `https://random-backend-yjzj.onrender.com/getProductsbyemail?useremail=${useremail}`
         );
         setProducts(response.data);
         setIsLoading(false);

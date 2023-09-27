@@ -20,7 +20,7 @@ export default function SearchResults() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/search?q=${query}`);
+        const response = await axios.get(`https://random-backend-yjzj.onrender.com/search?q=${query}`);
         setResults(response.data);
         setLoading(false);
       } catch (err) {

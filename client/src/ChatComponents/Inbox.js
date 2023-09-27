@@ -13,7 +13,7 @@ export default function Inbox() {
   useEffect(() => {
     const fetchNewChats = async () => {
       try {
-        const response = await axios.get("/api/newchats", {
+        const response = await axios.get("https://random-backend-yjzj.onrender.com/api/newchats", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },

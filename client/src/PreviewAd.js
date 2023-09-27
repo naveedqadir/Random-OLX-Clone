@@ -43,7 +43,7 @@ const PreviewAd = ({auth}) => {
   const fetchData = async () => {
     try {
       const response = await axios.post(
-        `/previewad/${id}`,
+        `https://random-backend-yjzj.onrender.com/previewad/${id}`,
         {},
         {
           headers: {
@@ -59,7 +59,7 @@ const PreviewAd = ({auth}) => {
       // when not loged in
       // make changes for not loged in user as authToken is not updated so data is not recieved .
       setOwn(false);
-      const notlogedindata = await axios.post(`/previewad/notloggedin/${id}`);
+      const notlogedindata = await axios.post(`https://random-backend-yjzj.onrender.com/previewad/notloggedin/${id}`);
       setData(notlogedindata.data.product);
       setLoading(false); // Set loading state to false when data is fetched successfully
     }
@@ -76,7 +76,7 @@ const PreviewAd = ({auth}) => {
   const handleRemove = async () => {
     try {
       setIsRemoving(true);
-      await axios.delete(`/myads_delete/${id}`, {
+      await axios.delete(`https://random-backend-yjzj.onrender.com/myads_delete/${id}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },

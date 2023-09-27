@@ -16,7 +16,7 @@ export default function SendChat({ id , to }) {
     e.preventDefault();
     if (message) {
       const response = await axios.post(
-        "/sendMessage",
+        "https://random-backend-yjzj.onrender.com/sendMessage",
         { message, id, to },
         {
           headers: {

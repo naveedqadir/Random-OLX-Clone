@@ -185,7 +185,7 @@ if (errors.length > 0) {
     ]);
     
     const token = localStorage.getItem('authToken');
-    await axios.post("/add_product", {
+    await axios.post("https://random-backend-yjzj.onrender.com/add_product", {
       title,
       description,
       address: x,

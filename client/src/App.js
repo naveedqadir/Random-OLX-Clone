@@ -33,7 +33,7 @@ function App() {
         console.log('User is not authenticated');
         return;
       }
-      const response = await fetch('/auth-endpoint', {
+      const response = await fetch('https://random-backend-yjzj.onrender.com/auth-endpoint', {
         headers: {
           Authorization: `Bearer ${authToken}`
         }

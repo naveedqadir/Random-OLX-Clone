@@ -27,7 +27,7 @@ export default function MyAds() {
     const fetchAds = async () => {
       setIsLoading(true);
       const token = localStorage.getItem("authToken");
-      const response = await axios.get("/myads_view", {
+      const response = await axios.get("https://random-backend-yjzj.onrender.com/myads_view", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -51,7 +51,7 @@ export default function MyAds() {
     setDeletingCardId(id); // Set the ID of the card being deleted
     const token = localStorage.getItem("authToken");
     try {
-      await axios.delete(`/myads_delete/${id}`, {
+      await axios.delete(`https://random-backend-yjzj.onrender.com/myads_delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
