@@ -19,7 +19,7 @@ export default function Footer() {
         </div>
 
         <div className="text-dark">
-          <a href="naveedsportfolio.netlify.app" className="me-4 text-reset">
+          <a href="https://naveedsportfolio.netlify.app" className="me-4 text-reset">
             <MDBIcon fa icon="globe" />
           </a>
           <a href="https://www.instagram.com/naveed.qadir/" className="me-4 text-reset">
@@ -138,7 +138,7 @@ export default function Footer() {
         style={{ backgroundColor: "rgba(0, 47, 52, 1)" }}
       >
         © 2021 Copyright:
-        <a className="fw-bold text-white" href="https://mdbootstrap.com/">
+        <a className="fw-bold text-white" href="https://randomolx.vercel.app/">
           Random.com
         </a>
       </div>

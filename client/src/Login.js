@@ -140,7 +140,7 @@ function Login() {
           <div className="text-center mb-3">
             <p>Sign up with:</p>
 
-            <div className='d-flex justify-content-between mx-auto' style={{width: '40%'}}>
+            <div>
               <GoogleSignIn />
             </div>
 

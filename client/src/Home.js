@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {Grid, GridItem} from "@chakra-ui/react";
+import {Box, Container, Grid, GridItem} from "@chakra-ui/react";
 import CatNavbar from "./CatNavbar";
 import ProductCard from "./ProductCards/ProductCard";
 import axios from "axios";
@@ -30,18 +30,20 @@ function Home() {
   }
 
   return (
-    <div>
+    <Box>
       <CatNavbar />
-      <Grid templateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={6}>
-        {products.map((product) => (
-          <GridItem key={product._id}>
-            <Link to={`/preview_ad/${product._id}`}>
-              <ProductCard product={product} />
-            </Link>
-          </GridItem>
-        ))}
-      </Grid>
-    </div>
+      <Container maxW="container.xl">
+        <Grid templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(300px, 1fr))" }} gap={6}>
+          {products.map((product) => (
+            <GridItem key={product._id}>
+              <Link to={`/preview_ad/${product._id}`}>
+                <ProductCard product={product} />
+              </Link>
+            </GridItem>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
   );
 }
 

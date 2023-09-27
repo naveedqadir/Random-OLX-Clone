@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CatNavbar from '../CatNavbar';
-import { Grid, GridItem } from '@chakra-ui/react';
+import { Box, Container, Grid, GridItem } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../ProductCards/ProductCard';
 import SearchNotFound from '../resources/SearchNotFound';
@@ -46,9 +46,10 @@ if (results.length === 0) {
   }
 
   return (
-    <div>
+    <Box>
       <CatNavbar />
-      <Grid templateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={6}>
+      <Container maxW="container.xl">
+      <Grid templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(300px, 1fr))" }} gap={6}>
         {results.map((product) => (
           <GridItem key={product._id}>
             <Link to={`/preview_ad/${product._id}`}>
@@ -57,6 +58,7 @@ if (results.length === 0) {
           </GridItem>
         ))}
       </Grid>
-    </div>
+      </Container>
+    </Box>
   );
 }
