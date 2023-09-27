@@ -64,24 +64,25 @@ function App() {
 
      {/* routes */}
      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          {auth === true && <Route path="/editprofile" element={<UserProfileEdit />} />}
-          {auth === true && <Route path="/profile" element={<Profile />} />}
-          {auth === true && <Route path="/myads" element={<Myads />} />}
-          {auth === true && <Route path="/sell" element={<Sell />}/>}
-          {auth === false && <Route path="/sell" element={[<Modallogin setStaticModal={setStaticModal} toggleShow={toggleShow} staticModal={staticModal}/>, <Home/>]}/>}
-          {auth === true &&  <Route path="/attributes/:category/:item" element={<SellForm />} />}
-          {auth === true && <Route path="/chat/:id/:useremail" element={<MyChat />} />}
-          {auth === true && <Route path="/chat" element={<MyChat />} />}
-          <Route path="*" element={[<NotFound />]}/>
-          <Route path="/adsuccess" element={<AdSuccess />} />
-          <Route path="/preview_ad/:id" element={<PreviewAd auth={auth}/>} />
-          <Route path="/:category" element={<CatagoryView />} />
-          <Route path="/results" element={<SearchResults />} />
-          <Route path="/profile/:useremail" element={<SearchProfile />} />
-        </Routes>
-      </Router>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/adsuccess" element={<AdSuccess />} />
+    <Route path="/preview_ad/:id" element={<PreviewAd auth={auth} />} />
+    <Route path="/attributes/:category/:item" element={<SellForm />} />
+    <Route path="/chat/:id/:useremail" element={<MyChat />} />
+    <Route path="/chat" element={<MyChat />} />
+    {auth === true && <Route path="/editprofile" element={<UserProfileEdit />} />}
+    {auth === true && <Route path="/profile" element={<Profile />} />}
+    {auth === true && <Route path="/myads" element={<Myads />} />}
+    {auth === true && <Route path="/sell" element={<Sell />} />}
+    {auth === false && <Route path="/sell" element={[<Modallogin setStaticModal={setStaticModal} toggleShow={toggleShow} staticModal={staticModal} />, <Home />]} />}
+    <Route path="/:category" element={<CatagoryView />} />
+    <Route path="/results" element={<SearchResults />} />
+    <Route path="/profile/:useremail" element={<SearchProfile />} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+</Router>
+
 
       {/* USE FOOTER */}
       <Footer />
