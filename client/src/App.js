@@ -17,6 +17,7 @@ import CatagoryView from './CatagoryView';
 import SearchResults from './SearchComponents/SearchResults';
 import MyChat from './MyChat';
 import SearchProfile from './SearchProfile';
+import Loading from './resources/Loading';
 
 function App() {
   // for modal 
@@ -24,6 +25,7 @@ function App() {
   const toggleShow = () => setStaticModal(!staticModal);
 
   const [auth, setAuth] = useState(false);
+  const [loading, setLoading] = useState(true); // Initial loading state
 
   // Function to check user authentication status
   async function checkAuthentication() {
@@ -50,11 +52,19 @@ function App() {
     } catch (error) {
       console.error(error);
     }
+     finally {
+      // Authentication check is complete, update loading state
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     checkAuthentication();
   }, []);
+
+    if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="App">
