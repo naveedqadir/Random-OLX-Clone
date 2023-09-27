@@ -66,7 +66,7 @@ export default function MyChat() {
       const fetchData = async () => {
         try {
           const response = await axios.post(
-            `/previewad/${id}`,
+            `https://random-backend-yjzj.onrender.com/deletechat/previewad/${id}`,
             {},
             {
               headers: {
