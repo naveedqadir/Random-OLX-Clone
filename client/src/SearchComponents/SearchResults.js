@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CatNavbar from '../CatNavbar';
-import { Box, Container, Grid, GridItem } from '@chakra-ui/react';
+import { Box, Button, Container, Grid, GridItem } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../ProductCards/ProductCard';
 import SearchNotFound from '../resources/SearchNotFound';
@@ -14,6 +14,8 @@ export default function SearchResults() {
 
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visibleproducts, setVisibleProducts] = useState(6);
+  const hasMoreProductsToLoad = visibleproducts < results.length;
 
   const [error, setError] = useState(null);
 
@@ -50,7 +52,7 @@ if (results.length === 0) {
       <CatNavbar />
       <Container maxW="container.xl">
       <Grid templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(300px, 1fr))" }} gap={6}>
-        {results.map((product) => (
+        {results.slice(0, visibleproducts).map((product) => (
           <GridItem key={product._id}>
             <Link to={`/preview_ad/${product._id}`}>
               <ProductCard product={product} />
@@ -58,6 +60,24 @@ if (results.length === 0) {
           </GridItem>
         ))}
       </Grid>
+      {hasMoreProductsToLoad && (
+        <Button
+          className="mb-2"
+          bgGradient="linear(to-r, teal.400, cyan.600)"
+          color="white"
+          _hover={{
+            bgGradient: "linear(to-r, teal.600, cyan.800)",
+          }}
+          _active={{
+            bgGradient: "linear(to-r, teal.800, cyan.900)",
+          }}
+          onClick={() => {
+            setVisibleProducts((prev) => prev + 10);
+          }}
+        >
+          Load More
+        </Button>
+)}
       </Container>
     </Box>
   );

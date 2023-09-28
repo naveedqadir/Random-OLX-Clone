@@ -3,6 +3,7 @@ import axios from "axios";
 import ReactLoading from "react-loading";
 import {
   Box,
+  Button,
   Heading,
   SimpleGrid,
 } from "@chakra-ui/react";
@@ -12,6 +13,8 @@ import ProductCardProfile from "./ProductCards/ProductCardProfile";
 function MyadCards() {
   const [ads, setAds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [visibleproducts, setVisibleProducts] = useState(6);
+  const hasMoreProductsToLoad = visibleproducts < ads.length;
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -53,10 +56,28 @@ function MyadCards() {
               Your Products
             </Heading>
             <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4}>
-              {ads.map((ad) => (
+              {ads.slice(0, visibleproducts).map((ad) => (
                 <ProductCardProfile ad={ad}/>
               ))}
             </SimpleGrid>
+            {hasMoreProductsToLoad && (
+        <Button
+          className="mb-2"
+          bgGradient="linear(to-r, teal.400, cyan.600)"
+          color="white"
+          _hover={{
+            bgGradient: "linear(to-r, teal.600, cyan.800)",
+          }}
+          _active={{
+            bgGradient: "linear(to-r, teal.800, cyan.900)",
+          }}
+          onClick={() => {
+            setVisibleProducts((prev) => prev + 10);
+          }}
+        >
+          Load More
+        </Button>
+)}
           </Box>
         </>
       )}

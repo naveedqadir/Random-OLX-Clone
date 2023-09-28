@@ -22,6 +22,8 @@ export default function MyAds() {
   const toast = useToast();
   const [isRemoving, setIsRemoving] = useState(false);
   const [deletingCardId, setDeletingCardId] = useState(null);
+  const [visibleproducts, setVisibleProducts] = useState(6);
+  const hasMoreProductsToLoad = visibleproducts < ads.length;
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -92,7 +94,7 @@ export default function MyAds() {
             <Heading size="lg" mb={4}>
               Your Products
             </Heading>
-            {ads.map((ad) => (
+            {ads.slice(0, visibleproducts).map((ad) => (
               <Card key={ad._id} variant={"filled"} maxW="3xl" className="mb-4">
                 <a href={`/preview_ad/${ad._id}`}>
                   <Stack className="mt-2" direction="row" spacing={4}>
@@ -129,6 +131,24 @@ export default function MyAds() {
                 </CardFooter>
               </Card>
             ))}
+            {hasMoreProductsToLoad && (
+        <Button
+          className="mb-2"
+          bgGradient="linear(to-r, teal.400, cyan.600)"
+          color="white"
+          _hover={{
+            bgGradient: "linear(to-r, teal.600, cyan.800)",
+          }}
+          _active={{
+            bgGradient: "linear(to-r, teal.800, cyan.900)",
+          }}
+          onClick={() => {
+            setVisibleProducts((prev) => prev + 10);
+          }}
+        >
+          Load More
+        </Button>
+)}
           </Box>
         </>
       )}
