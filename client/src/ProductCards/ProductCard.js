@@ -23,11 +23,15 @@ export default function ProductCard({ product }) {
     <div>
       <Card maxW="sm" className="mt-2 mb-2">
         <CardBody>
+        <div style={{display: "flex", justifyContent: "center"}}>
           <Image
             src={product.productpic1}
             alt={product.subcategory}
             borderRadius="lg"
+            maxH="200px"
+            maxW="400px"
           />
+          </div>
           <Stack mt="6" spacing="3">
             <Text>{product.title}</Text>
             <Text color="blue.600" fontSize="2xl">

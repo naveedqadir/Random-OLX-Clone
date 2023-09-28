@@ -24,6 +24,8 @@ export default function SearchProfile() {
   const bgcolor1 = useColorModeValue("white", "gray.800");
   const bgcolor2 = useColorModeValue("#151f21", "gray.900");
   const [products, setProducts] = useState([]);
+  const [visibleproducts, setVisibleProducts] = useState(6);
+  const hasMoreProductsToLoad = visibleproducts < products.length;
 
   if (useremail === localStorage.getItem("authemail")) {
     window.location.href = "/profile";
@@ -142,10 +144,28 @@ export default function SearchProfile() {
                   Products of {name}
                   </Heading>
                   <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4}>
-                    {products.map((ad) => (
+                    {products.slice(0, visibleproducts).map((ad) => (
                       <ProductCardProfile ad={ad} />
                     ))}
                   </SimpleGrid>
+                  {hasMoreProductsToLoad && (
+        <Button
+          className="mb-2"
+          bgGradient="linear(to-r, teal.400, cyan.600)"
+          color="white"
+          _hover={{
+            bgGradient: "linear(to-r, teal.600, cyan.800)",
+          }}
+          _active={{
+            bgGradient: "linear(to-r, teal.800, cyan.900)",
+          }}
+          onClick={() => {
+            setVisibleProducts((prev) => prev + 10);
+          }}
+        >
+          Load More
+        </Button>
+)}
                 </Box>
               </>
             )}
