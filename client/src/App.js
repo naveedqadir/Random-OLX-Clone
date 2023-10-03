@@ -1,23 +1,24 @@
-import './App.css';
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import React, {useState, useEffect} from "react";
-import Navbar from './Navbar';
-import Footer from './Footer';
-import Home from './Home';
-import Sell from './Sell';
-import Modallogin from './Modallogin';
-import SellForm from './SellForm';
-import AdSuccess from './SellFormComponents/AdSuccess';
-import UserProfileEdit from './UserProfileEdit';
-import Profile from './Profile';
-import NotFound from './resources/NotFound';
-import Myads from './Myads';
-import PreviewAd from './PreviewAd';
-import CatagoryView from './CatagoryView';
-import SearchResults from './SearchComponents/SearchResults';
-import MyChat from './MyChat';
-import SearchProfile from './SearchProfile';
-import Loading from './resources/Loading';
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import Home from "./Home";
+import MaintenancePage from "./resources/MaintenancePage"; // Import the MaintenancePage component
+import Sell from "./Sell";
+import Modallogin from "./Modallogin";
+import SellForm from "./SellForm";
+import AdSuccess from "./SellFormComponents/AdSuccess";
+import UserProfileEdit from "./UserProfileEdit";
+import Profile from "./Profile";
+import NotFound from "./resources/NotFound";
+import Myads from "./Myads";
+import PreviewAd from "./PreviewAd";
+import CatagoryView from "./CatagoryView";
+import SearchResults from "./SearchComponents/SearchResults";
+import MyChat from "./MyChat";
+import SearchProfile from "./SearchProfile";
+import Loading from "./resources/Loading";
+
 
 function App() {
   // for modal 
@@ -26,6 +27,20 @@ function App() {
 
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true); // Initial loading state
+  const [backendStatus, setBackendStatus] = useState('online'); // Track backend status
+
+
+  async function checkBackendStatus() {
+    try {
+      const response = await fetch('https://random-backend-yjzj.onrender.com/api/check-status');
+      const data = await response.json();
+      setBackendStatus(data.status);
+    } catch (error) {
+      setBackendStatus('offline');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Function to check user authentication status
   async function checkAuthentication() {
@@ -57,8 +72,10 @@ function App() {
       setLoading(false);
     }
   }
+  
 
   useEffect(() => {
+    checkBackendStatus();
     checkAuthentication();
   }, []);
 
@@ -73,6 +90,7 @@ function App() {
       <Navbar auth={auth} setAuth={setAuth} />
 
      {/* routes */}
+     {backendStatus === 'online' ? (
      <Router>
   <Routes>
     <Route path="/" element={<Home />} />
@@ -92,6 +110,10 @@ function App() {
     <Route path="*" element={<NotFound />} />
   </Routes>
 </Router>
+      ) : (
+        // Render the maintenance page when the backend is down
+        <MaintenancePage />
+      )}
 
 
       {/* USE FOOTER */}

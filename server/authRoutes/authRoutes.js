@@ -6,6 +6,15 @@ const User = require('../models/User'); // Import the User model here
 const app = express();
 const auth = require("../middleware/auth");
 
+app.get('/api/check-status', (req, res) => {
+  const isBackendOnline = true;
+
+  if (isBackendOnline) {
+    res.json({ status: 'online' });
+  } else {
+    res.json({ status: 'offline' });
+  }
+});
 
 app.get("/auth-endpoint", auth, (request, response) => {
   response.json({ isAuthenticated: true });

@@ -160,7 +160,7 @@ if (errors.length > 0) {
                 },
               }
             );
-            return data.url;
+            return data.secure_url;
           })()
         : "",
       uploadedFiles.length > 0
@@ -178,7 +178,7 @@ if (errors.length > 0) {
                   },
                 }
               );
-              return data.url;
+              return data.secure_url;
             })
           )
         : [],

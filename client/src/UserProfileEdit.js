@@ -226,7 +226,7 @@ export default function UserProfileEdit() {
           }
         );
   
-        imageUrlToSend = data.url;
+        imageUrlToSend = data.secure_url;
       }
   
       // Retrieve the authorization token from localStorage
