@@ -51,50 +51,52 @@ export default function MyChat() {
   const [isLoading, setIsLoading] = useState(true);
   const [ChatScreen, setChatScreen] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.post(
-        `https://random-backend-yjzj.onrender.com/previewad/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      setProduct(response.data.product);
-      setIsLoading(false); // Set loading state to false when data is fetched successfully
-    } catch (error) {
-      setIsLoading(false);
-      setChatScreen(false);
-    }
-  };
-
-  const fetchProfileData = async () => {
-    try {
-      const response = await axios.get(
-        `https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`
-      );
-      setProfileData(response.data);
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      setChatScreen(false);
-    }
-  };
-
   useEffect(() => {
     if (id && useremail) {
-      setChatScreen(useremail !== authemail);
+      const fetchData = async () => {
+        setChatScreen(true);
+        try {
+          const response = await axios.post(
+            `https://random-backend-yjzj.onrender.com/previewad/${id}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },
+            }
+          );
+          setProduct(response.data.product);
+          setIsLoading(false); // Set loading state to false when data is fetched successfully
+        } catch (error) {
+          setChatScreen(false);
+        }
+      };
       fetchData();
-      if (useremail !== authemail) {
-        fetchProfileData();
+      if (useremail === authemail) {
+        setChatScreen(false);
+      } else {
+        setChatScreen(true);
+        try{
+          axios
+            .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
+            .then((response) => {
+              setProfileData(response.data);
+              setIsLoading(false);
+            })
+            .catch((error) => {
+              setIsLoading(false);
+              setChatScreen(false);
+            });
+          }
+          catch{
+            setChatScreen(false);
+          }
       }
+
     } else {
       setIsLoading(false);
     }
-  }, [id, useremail, authToken, authemail]);
-
+  }, [id, useremail, authToken, product.useremail]);
 
   if (isLoading) {
     return <Loading />;
