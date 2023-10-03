@@ -125,16 +125,12 @@ app.delete("/myads_delete/:id", auth, async (req, res) => {
 app.post("/previewad/:id", auth, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
     let own = false;
     if (product.useremail === req.user.userEmail) {
       own = true;
     }
     res.send({ product, own });
   } catch (error) {
-    console.log(error.message);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -147,7 +143,6 @@ app.post("/previewad/notloggedin/:id", async (req, res) => {
     }
     res.send({ product });
   } catch (error) {
-    console.log(error.message);
     res.status(500).json({ message: "Server error" });
   }
 }); 

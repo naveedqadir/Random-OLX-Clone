@@ -25,6 +25,7 @@ import MapComponent from "./MapComponent";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Modallogin from "./Modallogin";
 import Loading from "./resources/Loading";
+import NotFoundComponent from "./resources/NotFound";
 
 const PreviewAd = ({auth}) => {
   const { id } = useParams();
@@ -32,6 +33,7 @@ const PreviewAd = ({auth}) => {
   const [data, setData] = useState({});
   const [own, setOwn] = useState();
   const [loading, setLoading] = useState(true);
+  const [NotFound, setNotFound] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const authToken = localStorage.getItem("authToken");
   const toast = useToast();
@@ -59,9 +61,15 @@ const PreviewAd = ({auth}) => {
       // when not loged in
       // make changes for not loged in user as authToken is not updated so data is not recieved .
       setOwn(false);
-      const notlogedindata = await axios.post(`https://random-backend-yjzj.onrender.com/previewad/notloggedin/${id}`);
+      try{
+        const notlogedindata = await axios.post(`https://random-backend-yjzj.onrender.com/previewad/notloggedin/${id}`);
       setData(notlogedindata.data.product);
       setLoading(false); // Set loading state to false when data is fetched successfully
+      }
+      catch(e){
+        setLoading(false);
+        setNotFound(true); 
+      }
     }
   };
 
@@ -71,6 +79,9 @@ const PreviewAd = ({auth}) => {
 
   if (loading) {
     return <Loading />;
+  }
+  if (NotFound) {
+      return <NotFoundComponent />;
   }
 
   const handleRemove = async () => {
