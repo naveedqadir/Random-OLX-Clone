@@ -23,7 +23,7 @@ app.post("/sendMessage", auth, async (req, res) => {
     }
 
     // Check if the sender is the owner of the product or if the sender and recipient are the same
-    if (product.useremail === req.user.userEmail || product.useremail === mailto) {
+    if (product.useremail === req.user.userEmail || product.useremail !== mailto) {
       const message = await Message.findOne({ product_id: id, from: mailto });
 
       if (!message) {
@@ -33,12 +33,6 @@ app.post("/sendMessage", auth, async (req, res) => {
         });
       }
     } else {
-      return res.status(201).json({
-        success: false,
-        message: "You can't send a message to this user for this product",
-      });
-    }
-
     const newMessage = new Message({
       from: req.user.userEmail,
       to: mailto,
@@ -49,6 +43,7 @@ app.post("/sendMessage", auth, async (req, res) => {
     // Save the message document
     await newMessage.save();
     res.status(200).json({ success: true, message: "Message sent successfully" });
+  }
   } catch (error) {
     console.error("Error saving message:", error);
     res.status(500).json({ success: false, message: "Error sending message" });
