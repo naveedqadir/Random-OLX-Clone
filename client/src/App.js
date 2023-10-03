@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./Navbar";
+import "./App.css"
 import Footer from "./Footer";
 import Home from "./Home";
 import MaintenancePage from "./resources/MaintenancePage"; // Import the MaintenancePage component
