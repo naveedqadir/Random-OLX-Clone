@@ -64,6 +64,7 @@ export default function MyChat() {
         });
 
       const fetchData = async () => {
+        setChatScreen(true);
         try {
           const response = await axios.post(
             `https://random-backend-yjzj.onrender.com/previewad/${id}`,
@@ -77,11 +78,10 @@ export default function MyChat() {
           setProduct(response.data.product);
           setIsLoading(false); // Set loading state to false when data is fetched successfully
         } catch (error) {
-          console.error(error); //
+          setChatScreen(false);
         }
       };
       fetchData();
-      setChatScreen(true);
       if (useremail === authemail) {
         setChatScreen(false);
       } else {
