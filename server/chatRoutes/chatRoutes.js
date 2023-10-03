@@ -14,6 +14,7 @@ app.post("/sendMessage", auth, async (req, res) => {
     const product = await Product.findOne({ _id: id });
     const userto = await User.findOne({ email: mailto });
 
+    // Check if the product and recipient user exist
     if (!product || !userto) {
       return res.status(400).json({
         success: false,
@@ -21,7 +22,8 @@ app.post("/sendMessage", auth, async (req, res) => {
       });
     }
 
-    if (product.useremail === req.user.userEmail) {
+    // Check if the sender is the owner of the product or if the sender and recipient are the same
+    if (product.useremail === req.user.userEmail || product.useremail === mailto) {
       const message = await Message.findOne({ product_id: id, from: mailto });
 
       if (!message) {
@@ -30,6 +32,11 @@ app.post("/sendMessage", auth, async (req, res) => {
           message: "You can't send a message to this user for this product",
         });
       }
+    } else {
+      return res.status(201).json({
+        success: false,
+        message: "You can't send a message to this user for this product",
+      });
     }
 
     const newMessage = new Message({
@@ -47,6 +54,7 @@ app.post("/sendMessage", auth, async (req, res) => {
     res.status(500).json({ success: false, message: "Error sending message" });
   }
 });
+
 
   
   app.get("/api/new-messages", auth, async (req, res) => {
