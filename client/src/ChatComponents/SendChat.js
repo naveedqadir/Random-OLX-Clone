@@ -28,9 +28,9 @@ export default function SendChat({ id , to }) {
         setMessage("");
       }
       if (response.status === 201) {
-        setMessage("You cannot send Message untill the Person wants the Product");
+        setMessage("You cannot send Message");
         toast({
-          title: "You cannot send Message untill the Person wants the Product",
+          title: "You cannot send Message",
           status: "error",
           duration: 3000,
           isClosable: true,

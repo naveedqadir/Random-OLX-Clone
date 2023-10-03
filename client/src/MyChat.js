@@ -228,7 +228,7 @@ export default function MyChat() {
                 </Card>
                 <Divider />
                 <MDBTypography listUnStyled>
-                  <FetchChat id={id} toData={profileData} />
+                  <FetchChat id={id} toData={profileData} to={useremail} />
                   <SendChat id={id} to={useremail} />
                 </MDBTypography>
               </>

@@ -58,13 +58,14 @@ app.post("/sendMessage", auth, async (req, res) => {
 
   
   app.get("/api/new-messages", auth, async (req, res) => {
-    const { id } = req.query; // Use req.query to access query parameters
+    const id = req.query.id; // Use req.query to access query parameters
+    const to = req.query.to; 
     const mailfrom = req.user.userEmail;
       try {
       const newMessages = await Message.find({
         $or: [
-          { from: mailfrom, product_id: id },
-          { to: mailfrom, product_id: id },
+          { from: mailfrom, to:to, product_id: id },
+          { to: mailfrom, from:to, product_id: id },
         ],
       });
       // console.log(newMessages)

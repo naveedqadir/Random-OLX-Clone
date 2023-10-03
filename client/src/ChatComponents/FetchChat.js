@@ -4,7 +4,7 @@ import { MDBCard, MDBCardBody, MDBCardHeader, MDBIcon } from "mdb-react-ui-kit";
 import React, { useEffect, useRef, useState } from "react";
 import Loading from "../resources/Loading";
 
-export default function FetchChat({ id, toData }) {
+export default function FetchChat({ id, toData, to }) {
   const authPicture = localStorage.getItem("authpicture");
   const authName = localStorage.getItem("authname");
   const authemail = localStorage.getItem("authemail");
@@ -34,7 +34,7 @@ export default function FetchChat({ id, toData }) {
         const currentMessageLength = newMessages.length;
         try {
           const response = await axios.get("https://random-backend-yjzj.onrender.com/api/new-messages", {
-            params: { id }, // Pass data as query parameters
+            params: { id, to }, // Pass data as query parameters
             headers: {
               Authorization: `Bearer ${authToken}`,
             },
