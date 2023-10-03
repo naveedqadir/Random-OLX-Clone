@@ -94,10 +94,6 @@ app.delete("/myads_delete/:id", auth, async (req, res) => {
       useremail: req.user.userEmail,
     });
 
-    if (!product) {
-      return res.status(404).send({ error: "Product not found" });
-    }
-
     // delete the ownerpicture from Cloudinary if it exists
     if (product.ownerpicture) {
       const publicId = product.ownerpicture.match(/\/v\d+\/(\S+)\.\w+/)[1];
@@ -138,9 +134,6 @@ app.post("/previewad/:id", auth, async (req, res) => {
 app.post("/previewad/notloggedin/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
     res.send({ product });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
