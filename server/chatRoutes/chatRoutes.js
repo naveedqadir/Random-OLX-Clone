@@ -14,7 +14,8 @@ app.post("/sendMessage", auth, async (req, res) => {
       const product = await Product.findOne({ _id: id });
       if (product.useremail === req.user.userEmail) {
          const message = await Message.findOne({ product_id: id, from: mailto });
-         if (!message){
+         const userto = await User.findOne({email: mailto});
+         if (!message && !userto){
           res
           .status(201)
           .json({ success: true, message: "You can't send message" });

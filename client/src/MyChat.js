@@ -53,16 +53,6 @@ export default function MyChat() {
 
   useEffect(() => {
     if (id && useremail) {
-      axios
-        .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
-        .then((response) => {
-          setProfileData(response.data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          setIsLoading(false);
-        });
-
       const fetchData = async () => {
         setChatScreen(true);
         try {
@@ -86,7 +76,23 @@ export default function MyChat() {
         setChatScreen(false);
       } else {
         setChatScreen(true);
+        try{
+          axios
+            .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
+            .then((response) => {
+              setProfileData(response.data);
+              setIsLoading(false);
+            })
+            .catch((error) => {
+              setIsLoading(false);
+              setChatScreen(false);
+            });
+          }
+          catch{
+            setChatScreen(false);
+          }
       }
+
     } else {
       setIsLoading(false);
     }
