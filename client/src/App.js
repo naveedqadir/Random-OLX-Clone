@@ -98,8 +98,8 @@ function App() {
     <Route path="/adsuccess" element={<AdSuccess />} />
     <Route path="/preview_ad/:id" element={<PreviewAd auth={auth} />} />
     <Route path="/attributes/:category/:item" element={<SellForm />} />
-    <Route path="/chat/:id/:useremail" element={<MyChat />} />
-    <Route path="/chat" element={<MyChat />} />
+    {auth === true && <Route path="/chat/:id/:useremail" element={<MyChat />} />}
+    {auth === true && <Route path="/chat" element={<MyChat />} />}
     {auth === true && <Route path="/editprofile" element={<UserProfileEdit />} />}
     {auth === true && <Route path="/profile" element={<Profile />} />}
     {auth === true && <Route path="/myads" element={<Myads />} />}
