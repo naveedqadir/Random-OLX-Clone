@@ -28,6 +28,7 @@ import {
 import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { getAvatarProps } from "./utils/imageUtils";
 import { ChatIcon } from "@chakra-ui/icons";
 
 import logo from "./resources/logo.jpeg";
@@ -95,8 +96,7 @@ export default function Navbar({ auth, setAuth }) {
             </MDBNavbarNav>
             
             {auth === true && (
-            <MDBNavbarLink>
-              <a href="/chat">
+            <MDBNavbarLink href="/chat">
               <IconButton
                 variant="ghost"
                 colorScheme="teal"
@@ -107,7 +107,6 @@ export default function Navbar({ auth, setAuth }) {
                   border: "2px solid skyblue",
                 }}
               />
-              </a>
             </MDBNavbarLink>
             )}
 
@@ -124,12 +123,12 @@ export default function Navbar({ auth, setAuth }) {
                     border: "2px solid skyblue",
                   }}
                 >
-                  <Avatar size={"sm"} src={picture} />
+                  <Avatar {...getAvatarProps(picture, 32)} size={"sm"} />
                 </MenuButton>
                 <MenuList alignItems={"center"}>
                   <br />
                   <Center>
-                    <Avatar size={"2xl"} src={picture} />
+                    <Avatar {...getAvatarProps(picture, 128)} size={"2xl"} />
                   </Center>
                   <br />
                   <Center>
@@ -137,18 +136,14 @@ export default function Navbar({ auth, setAuth }) {
                   </Center>
                   <br />
                   <MenuDivider />
-                  <a href="/editprofile">
-                    <MenuItem>
-                      <AccountBoxIcon sx={{ color: cyan[500] }} />
-                      <span className="mx-2"> View/Edit Profile</span>
-                    </MenuItem>
-                  </a>
-                  <a href="/myads">
-                    <MenuItem>
-                      <FavoriteTwoToneIcon sx={{ color: purple[500] }} />
-                      <span className="mx-2">My Ads</span>
-                    </MenuItem>
-                  </a>
+                  <MenuItem onClick={() => window.location.href = '/editprofile'}>
+                    <AccountBoxIcon sx={{ color: cyan[500] }} />
+                    <span className="mx-2"> View/Edit Profile</span>
+                  </MenuItem>
+                  <MenuItem onClick={() => window.location.href = '/myads'}>
+                    <FavoriteTwoToneIcon sx={{ color: purple[500] }} />
+                    <span className="mx-2">My Ads</span>
+                  </MenuItem>
                   <MenuItem onClick={handleLogout}>
                     <LogoutIcon sx={{ color: red[500] }} />
                     <span className="mx-2">Logout</span>

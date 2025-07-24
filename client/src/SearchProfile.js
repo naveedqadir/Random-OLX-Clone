@@ -16,6 +16,7 @@ import axios from "axios";
 import ProductCardProfile from "./ProductCards/ProductCardProfile";
 import NotListedAnything from "./resources/NotListedAnything";
 import Loading from "./resources/Loading";
+import { getAvatarProps } from "./utils/imageUtils";
 
 export default function SearchProfile() {
   const { useremail } = useParams();
@@ -26,13 +27,14 @@ export default function SearchProfile() {
   const [products, setProducts] = useState([]);
   const [visibleproducts, setVisibleProducts] = useState(6);
   const hasMoreProductsToLoad = visibleproducts < products.length;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   if (useremail === localStorage.getItem("authemail")) {
     window.location.href = "/profile";
   }
   useEffect(() => {
     axios
-      .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
+      .get(`${backendUrl}/profilesearch?useremail=${useremail}`)
       .then((response) => {
         setProfileData(response.data);
         setIsLoading(false);
@@ -44,7 +46,7 @@ export default function SearchProfile() {
     const getProducts = async () => {
       try {
         const response = await axios.get(
-          `https://random-backend-yjzj.onrender.com/getProductsbyemail?useremail=${useremail}`
+          `${backendUrl}/getProductsbyemail?useremail=${useremail}`
         );
         setProducts(response.data);
         setIsLoading(false);
@@ -54,7 +56,7 @@ export default function SearchProfile() {
       }
     };
     getProducts();
-  }, []);
+  }, [useremail, backendUrl]);
 
   if (isLoading) {
     return <Loading />;
@@ -87,8 +89,8 @@ export default function SearchProfile() {
             />
             <Flex justify={"center"} mt={-12}>
               <Avatar
+                {...getAvatarProps(picture, 120)}
                 size={"xl"}
-                src={picture}
                 alt={"Author"}
                 css={{
                   border: "2px solid white",

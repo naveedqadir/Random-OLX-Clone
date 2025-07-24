@@ -15,12 +15,13 @@ function MyadCards() {
   const [isLoading, setIsLoading] = useState(true);
   const [visibleproducts, setVisibleProducts] = useState(6);
   const hasMoreProductsToLoad = visibleproducts < ads.length;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchAds = async () => {
       setIsLoading(true);
       const token = localStorage.getItem("authToken");
-      const response = await axios.get("https://random-backend-yjzj.onrender.com/myads_view", {
+      const response = await axios.get(`${backendUrl}/myads_view`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

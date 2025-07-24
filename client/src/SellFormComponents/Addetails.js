@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MDBCard, MDBCardBody, MDBCardImage, MDBInput, MDBIcon } from "mdb-react-ui-kit";
+import { getSafeImageUrl } from "../utils/imageUtils";
 
 const authname = localStorage.getItem("authname");
-const authpicture = localStorage.getItem("authpicture");
+const authpicture = getSafeImageUrl(localStorage.getItem("authpicture"), 100);
 
 export default function Addetails({ onNameSelect, onImageSelect }) {
   const [name, setName] = useState(authname || "");
   const [img, setImg] = useState(authpicture || "");
   const [imageSrc, setImageSrc] = useState(null);
-  const picture = localStorage.getItem("authpicture");
+  const picture = getSafeImageUrl(localStorage.getItem("authpicture"), 100);
   const phone = localStorage.getItem("authphone");
   const fileInputRef = useRef(null);
 

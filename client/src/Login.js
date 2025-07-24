@@ -15,12 +15,14 @@ import { Alert, Badge } from 'react-bootstrap';
 import axios from 'axios';
 import GoogleSignIn from './GoogleSignIn';
 import { useToast } from "@chakra-ui/react";
+import { getSafeImageUrl } from './utils/imageUtils';
 
 
 function Login() {
   const [err, setErr] = useState();
   const [justifyActive, setJustifyActive] = useState('tab1');;
-  const toast = useToast()
+  const toast = useToast();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 
   const handleJustifyClick = (value) => {
@@ -34,17 +36,17 @@ function Login() {
   const [registered, setRegistered] = useState(false);
   function register(event){
       event.preventDefault();
-      var email = document.getElementById("reemail").value;
-      var password = document.getElementById("repassword").value;
-      var rpassword = document.getElementById("rpassword").value;
-      var name = document.getElementById("name").value;
+      var email = document.getElementById("register-email").value;
+      var password = document.getElementById("register-password").value;
+      var rpassword = document.getElementById("register-rpassword").value;
+      var name = document.getElementById("register-name").value;
       if (password === rpassword){
       axios
-      .post("https://random-backend-yjzj.onrender.com/register", {
+      .post(`${backendUrl}/register`, {
           email,password,name,
       })
       .then((response) => {
-        console.log(response.data);
+        
         setRegistered(true)
         toast({
           title: 'Account created.',
@@ -55,33 +57,33 @@ function Login() {
         })
       })
       .catch((error) => {
-        console.log(error);
+        
         setErr(error.response.status)
       });
     }else{
-      document.getElementById("alert").innerHTML = `Password's Don't Match`;
+      document.getElementById("register-alert").innerHTML = `Password's Don't Match`;
     }
   }
 
     function login(event){
         event.preventDefault();
-        var email = document.getElementById("email").value;
-        var password = document.getElementById("password").value;
+        var email = document.getElementById("login-email").value;
+        var password = document.getElementById("login-password").value;
         axios
-        .post("https://random-backend-yjzj.onrender.com/login", {
+        .post(`${backendUrl}/login`, {
             email,password
         })
         .then((response) => {
-          console.log(response.data);
+          
           localStorage.setItem('authToken', response.data.token);
           localStorage.setItem('authemail', response.data.email);
           localStorage.setItem('authname', response.data.name);
           localStorage.setItem('authphone', response.data.phone);
-          localStorage.setItem('authpicture', response.data.picture || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png");
+          localStorage.setItem('authpicture', getSafeImageUrl(response.data.picture, 96));
           window.location.href = '/';
         })
         .catch((error) => {
-          console.log(error.response.status);
+          
           setErr(error.response.status)
         });
     }
@@ -107,23 +109,23 @@ function Login() {
           <div className="text-center mb-3">
             <p>Sign in with:</p>
 
-            <div>
-              <GoogleSignIn />
+            <div key="login-google">
+              <GoogleSignIn isVisible={justifyActive === 'tab1'} />
             </div>
 
             <p className="text-center mt-3">or:</p>
           </div>
           <form onSubmit={login}>
           <div className="mb-4">
-                <MDBInput label='Your Email' id='email' type='email' required/>
+                <MDBInput label='Your Email' id='login-email' type='email' required/>
               </div>
 
               <div className="mb-4">
-                <MDBInput label='Password' id='password' type='password' required/>
+                <MDBInput label='Password' id='login-password' type='password' required/>
               </div>
 
           <div className="d-flex justify-content-between mx-4 mb-4">
-            <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Remember me' />
+            <MDBCheckbox name='flexCheck' value='' id='login-flexCheck' label='Remember me' />
             <a href="!#">Forgot password?</a>
           </div>
 
@@ -131,32 +133,38 @@ function Login() {
           </form>
           {err === 404 && <Alert variant='danger'> Incorrect Email</Alert>}
           {err === 400 && <Alert variant='danger'> Incorrect Password</Alert>}
-          <p className="text-center">Not a member? <a href='#' onClick={() => handleJustifyClick('tab2')} active={justifyActive === 'tab2'}>Register</a></p>
+          <p className="text-center">Not a member? <button 
+            type="button" 
+            onClick={() => handleJustifyClick('tab2')}
+            style={{ background: 'none', border: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+          >
+            Register
+          </button></p>
 
         </MDBTabsPane>
 
         <MDBTabsPane show={justifyActive === 'tab2'}>
 
-          <div className="text-center mb-3">
+                    <div className="text-center mb-3">
             <p>Sign up with:</p>
 
-            <div>
-              <GoogleSignIn />
+            <div key="register-google">
+              <GoogleSignIn isVisible={justifyActive === 'tab2'} />
             </div>
 
             <p className="text-center mt-3">or:</p>
           </div>
           {registered === false &&
           <form onSubmit={register}>
-          <MDBInput wrapperClass='mb-4' label='Name' id='name' type='text' required/>
-          <MDBInput wrapperClass='mb-4' label='Email' id='reemail' type='email' required/>
-          <MDBInput wrapperClass='mb-4' label='Password' id='repassword' type='password' required/>
-          <MDBInput wrapperClass='mb-4' label='Repeat your password' id='rpassword' type='password' required/>
+          <MDBInput wrapperClass='mb-4' label='Name' id='register-name' type='text' required/>
+          <MDBInput wrapperClass='mb-4' label='Email' id='register-email' type='email' required/>
+          <MDBInput wrapperClass='mb-4' label='Password' id='register-password' type='password' required/>
+          <MDBInput wrapperClass='mb-4' label='Repeat your password' id='register-rpassword' type='password' required/>
 
-          <Badge id="alert" className="mb-1" bg="danger"></Badge>
+          <Badge id="register-alert" className="mb-1" bg="danger"></Badge>
 
           <div className='d-flex justify-content-center mb-4'>
-            <MDBCheckbox name='flexCheck' id='flexCheckDefault' label='I have read and agree to the terms' required/>
+            <MDBCheckbox name='flexCheck' id='register-flexCheck' label='I have read and agree to the terms' required/>
           </div>
           {err === 409 && <Alert variant='danger'>User Already Exist,Please Login</Alert>}
           <MDBBtn className="mb-4 w-100" type='submit '>Sign up</MDBBtn>

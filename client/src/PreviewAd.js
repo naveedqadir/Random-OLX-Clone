@@ -26,10 +26,12 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Modallogin from "./Modallogin";
 import Loading from "./resources/Loading";
 import NotFoundComponent from "./resources/NotFound";
+import { getSafeImageUrl, handleImageError } from "./utils/imageUtils";
 
 const PreviewAd = ({auth}) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [data, setData] = useState({});
   const [own, setOwn] = useState();
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,7 @@ const PreviewAd = ({auth}) => {
   const fetchData = async () => {
     try {
       const response = await axios.post(
-        `https://random-backend-yjzj.onrender.com/previewad/${id}`,
+        `${backendUrl}/previewad/${id}`,
         {},
         {
           headers: {
@@ -62,7 +64,7 @@ const PreviewAd = ({auth}) => {
       // make changes for not loged in user as authToken is not updated so data is not recieved .
       setOwn(false);
       try{
-        const notlogedindata = await axios.post(`https://random-backend-yjzj.onrender.com/previewad/notloggedin/${id}`);
+        const notlogedindata = await axios.post(`${backendUrl}/previewad/notloggedin/${id}`);
       setData(notlogedindata.data.product);
       setLoading(false); // Set loading state to false when data is fetched successfully
       }
@@ -87,7 +89,7 @@ const PreviewAd = ({auth}) => {
   const handleRemove = async () => {
     try {
       setIsRemoving(true);
-      await axios.delete(`https://random-backend-yjzj.onrender.com/myads_delete/${id}`, {
+      await axios.delete(`${backendUrl}/myads_delete/${id}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -102,7 +104,7 @@ const PreviewAd = ({auth}) => {
       });
       navigate("/myads");
 
-      console.log("ok");
+      
     } catch (error) {
       setIsRemoving(false);
 
@@ -230,9 +232,11 @@ const PreviewAd = ({auth}) => {
                           width: "80px",
                           height: "80px",
                           borderRadius: "10px",
+                          objectFit: "cover"
                         }}
-                        src={data.ownerpicture}
+                        src={getSafeImageUrl(data.ownerpicture, 80)}
                         alt="Profile"
+                        onError={handleImageError}
                         fluid
                       />
                       <div style={{ marginLeft: "1rem" }}>
@@ -275,9 +279,11 @@ const PreviewAd = ({auth}) => {
                           width: "80px",
                           height: "80px",
                           borderRadius: "10px",
+                          objectFit: "cover"
                         }}
-                        src={data.ownerpicture}
+                        src={getSafeImageUrl(data.ownerpicture, 80)}
                         alt="Profile"
+                        onError={handleImageError}
                         fluid
                       />
                       <div style={{ marginLeft: "1rem" }}>

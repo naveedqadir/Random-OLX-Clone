@@ -20,16 +20,16 @@ export default function Footer() {
 
         <div className="text-dark">
           <a href="https://naveedsportfolio.netlify.app" className="me-4 text-reset">
-            <MDBIcon fa icon="globe" />
+            <MDBIcon icon="globe" className="fas" />
           </a>
           <a href="https://www.instagram.com/naveed.qadir/" className="me-4 text-reset">
-            <MDBIcon fab icon="instagram" />
+            <MDBIcon icon="instagram" className="fab" />
           </a>
           <a href="https://www.linkedin.com/in/naveedqadir/" className="me-4 text-reset">
-            <MDBIcon fab icon="linkedin" />
+            <MDBIcon icon="linkedin" className="fab" />
           </a>
           <a href="https://github.com/naveedqadir" className="me-4 text-reset">
-            <MDBIcon fab icon="github" />
+            <MDBIcon icon="github" className="fab" />
           </a>
         </div>
       </section>

@@ -22,8 +22,11 @@ import { useToast } from "@chakra-ui/react";
 
 
 export default function SellForm() {
-  const { category } = useParams();
-  const { item } = useParams();
+  const { category, item } = useParams();
+  const navigate = useNavigate();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const cloudinaryCloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  const cloudinaryUploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
   //
   const isValidCategory = categories.some(
@@ -51,7 +54,6 @@ export default function SellForm() {
     }
   };
 
-  const navigate = useNavigate();
   const [loading, setLoading] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [price, setPrice] = useState();
@@ -95,15 +97,15 @@ export default function SellForm() {
   }
   
 
-  // console.log("Title:", title);
-  // console.log("Description:", description);
-  // console.log("Address:", address);
-  // console.log("Location:", location);
-  // console.log("Add or Lock",addorloc);
-  // console.log("Price:", price);
-  // console.log("All uploaded files:", uploadedFiles);
-  // console.log("Image:", image);
-  // console.log("Name:", name);
+  // 
+  // 
+  // 
+  // 
+  // 
+  // 
+  // 
+  // 
+  // 
 
 async function handleFormSubmit(event) {
   event.preventDefault();
@@ -150,9 +152,9 @@ if (errors.length > 0) {
         ? (async () => {
             const formData = new FormData();
             formData.append("file", image);
-            formData.append("upload_preset", "random");
+            formData.append("upload_preset", cloudinaryUploadPreset);
             const { data } = await axios.post(
-              "https://api.cloudinary.com/v1_1/dlpjayfhf/image/upload",
+              `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
               formData,
               {
                 headers: {
@@ -168,9 +170,9 @@ if (errors.length > 0) {
             uploadedFiles.map(async (file) => {
               const formData = new FormData();
               formData.append("file", file);
-              formData.append("upload_preset", "random");
+              formData.append("upload_preset", cloudinaryUploadPreset);
               const { data } = await axios.post(
-                "https://api.cloudinary.com/v1_1/dlpjayfhf/image/upload",
+                `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
                 formData,
                 {
                   headers: {
@@ -185,7 +187,7 @@ if (errors.length > 0) {
     ]);
     
     const token = localStorage.getItem('authToken');
-    await axios.post("https://random-backend-yjzj.onrender.com/add_product", {
+    await axios.post(`${backendUrl}/add_product`, {
       title,
       description,
       address: x,
@@ -203,7 +205,7 @@ if (errors.length > 0) {
     setLoading("redirect");
 
   } catch (error) {
-    console.log(error);
+    
   }
 }
   return (

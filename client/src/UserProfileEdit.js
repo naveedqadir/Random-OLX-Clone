@@ -42,12 +42,16 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import GppBadIcon from "@mui/icons-material/GppBad";
 import logo from "./resources/logo.jpeg";
 import StartIcon from "@mui/icons-material/Start";
+import { getSafeImageUrl } from "./utils/imageUtils";
 
 export default function UserProfileEdit() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const cloudinaryCloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  const cloudinaryUploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
   const [isSending, setSending] = useState(false);
   const [verifyscr, Setverifyscr] = useState(false);
@@ -80,7 +84,7 @@ export default function UserProfileEdit() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const response = await fetch(`https://random-backend-yjzj.onrender.com/verification-status?email=${authemail}`);
+        const response = await fetch(`${backendUrl}/verification-status?email=${authemail}`);
         const data = await response.json();
         // Update the isVerified state based on the response
         setIsVerified(data.isVerified);
@@ -105,9 +109,9 @@ export default function UserProfileEdit() {
   const handleSendOtp = async (event) => {
     setSending(true);
     try {
-      const response = await axios.post("https://random-backend-yjzj.onrender.com/send-verification-email", { email });
+      const response = await axios.post(`${backendUrl}/send-verification-email`, { email });
       // Handle the response from the server
-      console.log(response); // or perform any other action
+       // or perform any other action
       Setverifyscr(true);
       // Display success toast
       toast({
@@ -140,7 +144,7 @@ export default function UserProfileEdit() {
     try {
       const authToken = localStorage.getItem("authToken");
       const response = await axios.post(
-        "https://random-backend-yjzj.onrender.com/verify-email",
+        `${backendUrl}/verify-email`,
         { pin: value, email: email },
         {
           headers: {
@@ -154,7 +158,7 @@ export default function UserProfileEdit() {
       onClose();
       Setverifyscr(false);
 
-      console.log("Email verification response:", response.data);
+      
       toast({
         title: "Success",
         description: "Email verified successfully!",
@@ -214,10 +218,10 @@ export default function UserProfileEdit() {
       if (imageUrl.length > 200) {
         const formData = new FormData();
         formData.append('file', imageUrl);
-        formData.append('upload_preset', 'random');
+        formData.append('upload_preset', cloudinaryUploadPreset);
   
         const { data } = await axios.post(
-          'https://api.cloudinary.com/v1_1/dlpjayfhf/image/upload',
+          `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
           formData,
           {
             headers: {
@@ -233,7 +237,7 @@ export default function UserProfileEdit() {
       const authToken = localStorage.getItem('authToken');
   
       const response = await axios.post(
-        'https://random-backend-yjzj.onrender.com/profile_edit',
+        `${backendUrl}/profile_edit`,
         { name, imageUrl: imageUrlToSend, phoneNumber },
         {
           headers: {
@@ -244,7 +248,7 @@ export default function UserProfileEdit() {
       
       localStorage.setItem('authname', response.data.name);
       localStorage.setItem('authphone', response.data.phone);
-      localStorage.setItem('authpicture', response.data.picture);
+      localStorage.setItem('authpicture', getSafeImageUrl(response.data.picture, 96));
   
       // Handle the successful response and display a success toast
       toast({

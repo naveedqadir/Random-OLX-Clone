@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import axios from "axios";
 import ReactLoading from "react-loading";
 import NotListedAnything from "./resources/NotListedAnything";
 
-export default function MyAds() {
+export default function Myads() {
   const [ads, setAds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
@@ -24,12 +24,13 @@ export default function MyAds() {
   const [deletingCardId, setDeletingCardId] = useState(null);
   const [visibleproducts, setVisibleProducts] = useState(6);
   const hasMoreProductsToLoad = visibleproducts < ads.length;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchAds = async () => {
       setIsLoading(true);
       const token = localStorage.getItem("authToken");
-      const response = await axios.get("https://random-backend-yjzj.onrender.com/myads_view", {
+      const response = await axios.get(`${backendUrl}/myads_view`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -53,7 +54,7 @@ export default function MyAds() {
     setDeletingCardId(id); // Set the ID of the card being deleted
     const token = localStorage.getItem("authToken");
     try {
-      await axios.delete(`https://random-backend-yjzj.onrender.com/myads_delete/${id}`, {
+      await axios.delete(`${backendUrl}/myads_delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -66,7 +67,7 @@ export default function MyAds() {
         isClosable: true,
       });
     } catch (error) {
-      console.log(error);
+      
       toast({
         title: "Error",
         description: "Failed to delete ad.",

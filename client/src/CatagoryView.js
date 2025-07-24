@@ -16,6 +16,7 @@ export default function CatagoryView() {
   const [loading, setLoading] = useState(true);
   const [visibleproducts, setVisibleProducts] = useState(6);
   const hasMoreProductsToLoad = visibleproducts < products.length;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const isValidCategory = categories.some(
     (cat) => cat.title.toLowerCase() === category.toLowerCase()
@@ -29,7 +30,7 @@ export default function CatagoryView() {
 
     const getProductsbyCategory = async () => {
       try {
-        const response = await axios.get(`https://random-backend-yjzj.onrender.com/getProductsbyCategory/${category}`);
+        const response = await axios.get(`${backendUrl}/getProductsbyCategory/${category}`);
         setProducts(response.data);
         setLoading(false);
       } catch (err) {

@@ -3,12 +3,14 @@ import axios from "axios";
 import { MDBCard, MDBCardBody, MDBCardHeader, MDBIcon } from "mdb-react-ui-kit";
 import React, { useEffect, useRef, useState } from "react";
 import Loading from "../resources/Loading";
+import { getSafeImageUrl, handleImageError } from "../utils/imageUtils";
 
 export default function FetchChat({ id, toData, to }) {
   const authPicture = localStorage.getItem("authpicture");
   const authName = localStorage.getItem("authname");
   const authemail = localStorage.getItem("authemail");
   const authToken = localStorage.getItem("authToken");
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [newMessages, setNewMessages] = useState([]);
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const messageContainerRef = useRef(null);
@@ -33,7 +35,7 @@ export default function FetchChat({ id, toData, to }) {
       const fetchNewMessages = async () => {
         const currentMessageLength = newMessages.length;
         try {
-          const response = await axios.get("https://random-backend-yjzj.onrender.com/api/new-messages", {
+          const response = await axios.get(`${backendUrl}/api/new-messages`, {
             params: { id, to }, // Pass data as query parameters
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -61,7 +63,7 @@ export default function FetchChat({ id, toData, to }) {
         clearInterval(intervalId); // Clear the interval when the component unmounts
       };
     }
-  }, [id, authToken, newMessages]);
+  }, [id, authToken, newMessages, backendUrl, to]);
 
   useEffect(() => {
     if (hasNewMessages) {
@@ -103,23 +105,29 @@ export default function FetchChat({ id, toData, to }) {
                 </MDBCardBody>
               </MDBCard>
               <img
-                src={authPicture}
+                src={getSafeImageUrl(authPicture, 60)}
                 alt="avatar"
                 className="rounded-circle d-flex align-self-start ms-3 shadow-1-strong"
                 width="60"
+                height="60"
+                style={{ objectFit: 'cover' }}
+                onError={handleImageError}
               />
             </li>
           ) : (
             <li className="d-flex justify-content-between mb-4">
               <img
-                src={toData.picture}
+                src={getSafeImageUrl(toData?.picture, 60)}
                 alt="avatar"
                 className="rounded-circle d-flex align-self-start me-3 shadow-1-strong"
                 width="60"
+                height="60"
+                style={{ objectFit: 'cover' }}
+                onError={handleImageError}
               />
               <MDBCard className="w-100">
                 <MDBCardHeader className="d-flex justify-content-between p-3">
-                  <p className="fw-bold mb-0">{toData.name}</p>
+                  <p className="fw-bold mb-0">{toData?.name || "Loading..."}</p>
                   <p className="text-muted small mb-0">
                     <MDBIcon far icon="clock" /> {formatTime(message.createdAt)}
                   </p>

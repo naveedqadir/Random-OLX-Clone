@@ -25,6 +25,7 @@ function App() {
   // for modal 
   const [staticModal, setStaticModal] = useState(true);
   const toggleShow = () => setStaticModal(!staticModal);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true); // Initial loading state
@@ -33,7 +34,7 @@ function App() {
 
   async function checkBackendStatus() {
     try {
-      const response = await fetch('https://random-backend-yjzj.onrender.com/api/check-status');
+      const response = await fetch(`${backendUrl}/api/check-status`);
       const data = await response.json();
       setBackendStatus(data.status);
     } catch (error) {
@@ -48,10 +49,10 @@ function App() {
     try {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) {
-        console.log('User is not authenticated');
+        
         return;
       }
-      const response = await fetch('https://random-backend-yjzj.onrender.com/auth-endpoint', {
+      const response = await fetch(`${backendUrl}/auth-endpoint`, {
         headers: {
           Authorization: `Bearer ${authToken}`
         }
@@ -59,10 +60,10 @@ function App() {
       const data = await response.json();
 
       if (data.isAuthenticated) {
-        console.log('User is authenticated');
+        
         setAuth(true)
       } else {
-        console.log('User is not authenticated');
+        
         setAuth(false)
       }
     } catch (error) {
@@ -92,7 +93,7 @@ function App() {
 
      {/* routes */}
      {backendStatus === 'online' ? (
-     <Router>
+     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
   <Routes>
     <Route path="/" element={<Home />} />
     <Route path="/adsuccess" element={<AdSuccess />} />

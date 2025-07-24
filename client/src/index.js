@@ -17,14 +17,27 @@ const theme = extendTheme({
   },
 });
 
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+// Debug logging
+
+if (!googleClientId) {
+  console.error('REACT_APP_GOOGLE_CLIENT_ID is not defined in environment variables');
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <ChakraProvider theme={theme}>
-  <GoogleOAuthProvider clientId="792060318576-1mqeijfldhmbfck89vprnv7p1vm6tv6r.apps.googleusercontent.com">
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-  </GoogleOAuthProvider>
+  {googleClientId ? (
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <App />
+    </GoogleOAuthProvider>
+  ) : (
+    <div style={{ padding: '20px', color: 'red' }}>
+      <h2>Configuration Error</h2>
+      <p>Google OAuth Client ID is not configured. Please check your .env file.</p>
+    </div>
+  )}
   </ChakraProvider>
 );
 

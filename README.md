@@ -1,6 +1,17 @@
 # Random OLX Clone
- A OLX Clone using MERN Stack
+An OLX Clone built with the MERN Stack
 
-It is a Complete Replica of OLX Website with Chat feature included
+This project is a complete replica of the OLX website, including a chat feature.
 
-live at https://randomolx.vercel.app/
+Live demo: [https://randomolx.vercel.app/](https://randomolx.vercel.app/)
+
+## Getting Started
+
+1. Copy the example environment files for both client and server:
+
+    ```bash
+    cp client/.env.example client/.env
+    cp server/.env.example server/.env
+    ```
+
+2. Open each `.env` file and fill in the required environment variables with your configuration values.

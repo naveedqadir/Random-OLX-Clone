@@ -11,6 +11,7 @@ import Loading from '../resources/Loading';
 export default function SearchResults() {
   const searchParams = new URLSearchParams(window.location.search);
   const query = searchParams.get('query');
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,7 @@ export default function SearchResults() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`https://random-backend-yjzj.onrender.com/search?q=${query}`);
+        const response = await axios.get(`${backendUrl}/search?q=${query}`);
         setResults(response.data);
         setLoading(false);
       } catch (err) {

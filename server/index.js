@@ -32,11 +32,11 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Connected to database!");
+    
   })
   .catch((error) => {
-    console.log("Connection failed!");
-    console.log(error);
+    
+    
   });
 
 app.use('/', authRoutes); 
@@ -68,10 +68,10 @@ app.post("/add_product", auth, async (req, res) => {
     // Save the product document
     await product.save();
 
-    console.log("The product has been saved successfully.");
+    
     res.status(200).send("The product has been saved successfully.");
   } catch (err) {
-    console.log(err);
+    
     res.status(500).send("Failed to save the product.");
   }
 });
@@ -102,7 +102,7 @@ app.delete("/myads_delete/:id", auth, async (req, res) => {
     if (product.ownerpicture) {
       const publicId = product.ownerpicture.match(/\/v\d+\/(\S+)\.\w+/)[1];
       const result = await cloudinary.uploader.destroy(publicId);
-      console.log(result);
+      
     }
 
     // delete the product pictures from Cloudinary if they exist
@@ -111,14 +111,14 @@ app.delete("/myads_delete/:id", auth, async (req, res) => {
       if (product[productPic]) {
         const publicId = product[productPic].match(/\/v\d+\/(\S+)\.\w+/)[1];
         const result = await cloudinary.uploader.destroy(publicId);
-        console.log(result);
+        
       }
     }
 
     res.send(product);
   }
   } catch (error) {
-    console.log(error);
+    
     res.status(500).send({ error: "Server Error" });
   }
 });
@@ -188,6 +188,6 @@ app.get("/getProductsbyemail", async (req, res) => {
 });
 
 
-app.listen(5000, () => {
-  console.log("Server started on port 5000!");
+app.listen(process.env.PORT || 5000, () => {
+  
 });

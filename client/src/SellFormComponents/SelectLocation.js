@@ -23,7 +23,7 @@ const CurrentLocation = ({
   onlocationSelect,
   setAddOrLoc,
 }) => {
-  const apiKey = "da21fad825e941559ab482bf919488a0";
+  const apiKey = process.env.REACT_APP_GEOAPIFY_API_KEY;
   const [iconsActive, setIconsActive] = useState("tab1");
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -54,7 +54,7 @@ const CurrentLocation = ({
           setLoading(false);
         },
         (error) => {
-          console.log(error);
+          
         }
       );
     } else {
@@ -80,7 +80,7 @@ const CurrentLocation = ({
             area: response.data.features[0].properties.suburb,
             postcode: response.data.features[0].properties.postcode,
           };
-          console.log(response);
+          
           setAddress(address);
           onaddressSelect(address);
           setLoading(false);

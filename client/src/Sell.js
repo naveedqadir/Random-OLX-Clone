@@ -18,7 +18,7 @@ const handleClick = (category, item) => {
             {categories.map(({ title, items }, index) => (
               <MDBAccordionItem key={index} collapseId={index + 1} headerTitle={title}>
                 {items.map((item, i) => (
-                  <MDBBtn key={i} className="btn btn-secondary mb-1 w-100" onClick={() => handleClick(title, item)}>{item}</MDBBtn>
+                  <MDBBtn key={`${title}-${i}-${item}`} className="btn btn-secondary mb-1 w-100" onClick={() => handleClick(title, item)}>{item}</MDBBtn>
                 ))}
               </MDBAccordionItem>
             ))}

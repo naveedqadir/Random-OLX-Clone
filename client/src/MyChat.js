@@ -3,7 +3,6 @@ import {
   MDBContainer,
   MDBRow,
   MDBCol,
-  MDBCardImage,
   MDBTypography,
 } from "mdb-react-ui-kit";
 import CatNavbar from "./CatNavbar";
@@ -11,7 +10,6 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import {
   Avatar,
-  AvatarGroup,
   Button,
   Card,
   CardBody,
@@ -39,12 +37,14 @@ import Inbox from "./ChatComponents/Inbox";
 import FetchChat from "./ChatComponents/FetchChat";
 import SendChat from "./ChatComponents/SendChat";
 import Loading from "./resources/Loading";
+import { getAvatarProps } from "./utils/imageUtils";
 
 export default function MyChat() {
   const { id, useremail } = useParams();
   const toast = useToast();
   const authToken = localStorage.getItem("authToken");
   const authemail = localStorage.getItem("authemail");
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [product, setProduct] = useState({});
   const [profileData, setProfileData] = useState({});
@@ -57,7 +57,7 @@ export default function MyChat() {
         setChatScreen(true);
         try {
           const response = await axios.post(
-            `https://random-backend-yjzj.onrender.com/previewad/${id}`,
+            `${backendUrl}/previewad/${id}`,
             {},
             {
               headers: {
@@ -78,7 +78,7 @@ export default function MyChat() {
         setChatScreen(true);
         try{
           axios
-            .get(`https://random-backend-yjzj.onrender.com/profilesearch?useremail=${useremail}`)
+            .get(`${backendUrl}/profilesearch?useremail=${useremail}`)
             .then((response) => {
               setProfileData(response.data);
               setIsLoading(false);
@@ -96,7 +96,7 @@ export default function MyChat() {
     } else {
       setIsLoading(false);
     }
-  }, [id, useremail, authToken, product.useremail]);
+  }, [id, useremail, authToken, authemail, backendUrl]);
 
   if (isLoading) {
     return <Loading />;
@@ -106,7 +106,7 @@ export default function MyChat() {
     setIsLoading(true);
     axios
       .post(
-        `https://random-backend-yjzj.onrender.com/deletechat/${id}`,
+        `${backendUrl}/deletechat/${id}`,
         {},
         {
           headers: {
@@ -153,29 +153,29 @@ export default function MyChat() {
                       to={`/profile/${useremail}`}
                       style={{ display: "flex", alignItems: "center" }}
                     >
-                      <AvatarGroup>
+                      <div style={{ display: "flex", alignItems: "center", marginRight: "0.5rem" }}>
                         <Image
                           boxSize="50px"
                           objectFit="cover"
-                          src={product.productpic1}
-                          alt="Poduct Image"
+                          src={product.productpic1 || "https://via.placeholder.com/50x50?text=No+Image"}
+                          alt="Product Image"
+                          borderRadius="md"
+                          fallbackSrc="https://via.placeholder.com/50x50?text=No+Image"
                         />
-                        <MDBCardImage
-                          className="img-fluid rounded-circle border border-dark border-2"
-                          style={{
-                            width: "40px",
-                            height: "40px",
-                          }}
-                          src={product.ownerpicture}
+                        <Avatar
+                          {...getAvatarProps(product.ownerpicture, 40)}
                           alt="Product Owner"
-                          fluid
+                          size="sm"
+                          ml={-2}
+                          border="2px solid"
+                          borderColor="gray.800"
                         />
-                      </AvatarGroup>
+                      </div>
                       <div style={{ marginLeft: "1rem" }}>
-                        <Heading size="md">{profileData.name}</Heading>
+                        <Heading size="md">{profileData.name || "Unknown User"}</Heading>
                       </div>
                       <Avatar
-                        src={profileData.picture}
+                        {...getAvatarProps(profileData.picture, 32)}
                         alt="Message To"
                         size="sm"
                         className="mx-2"
@@ -228,7 +228,11 @@ export default function MyChat() {
                 </Card>
                 <Divider />
                 <MDBTypography listUnStyled>
-                  <FetchChat id={id} toData={profileData} to={useremail} />
+                  {profileData && profileData.name ? (
+                    <FetchChat id={id} toData={profileData} to={useremail} />
+                  ) : (
+                    <Loading />
+                  )}
                   <SendChat id={id} to={useremail} />
                 </MDBTypography>
               </>

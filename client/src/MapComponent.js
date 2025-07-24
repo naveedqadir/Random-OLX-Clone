@@ -3,6 +3,7 @@ import axios from "axios";
 
 const MapComponent = ({ area, city, state }) => {
   const [position, setPosition] = useState(null);
+  const apiKey = process.env.REACT_APP_GEOAPIFY_API_KEY;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -10,8 +11,8 @@ const MapComponent = ({ area, city, state }) => {
         const address = `${area}, ${city}, ${state}`;
         const response = await axios.get(
           `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
-            address
-          )}&apiKey=da21fad825e941559ab482bf919488a0`
+        address
+          )}&apiKey=${apiKey}`
         );
 
         // Extract the latitude and longitude from the response
@@ -29,14 +30,14 @@ const MapComponent = ({ area, city, state }) => {
     };
 
     fetchData();
-  }, [area, city, state]);
+  }, [area, city, state, apiKey]);
 
   return (
     <div>
       {position && (
         <img
           alt="Map"
-          src={`https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=300&height=200&center=lonlat:${position[1]},${position[0]}&zoom=10&apiKey=da21fad825e941559ab482bf919488a0`}
+          src={`https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=300&height=200&center=lonlat:${position[1]},${position[0]}&zoom=10&apiKey=${apiKey}`}
           style={{ width: "100%", height: "200px" }}
         />
       )}

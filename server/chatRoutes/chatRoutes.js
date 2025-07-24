@@ -68,7 +68,7 @@ app.post("/sendMessage", auth, async (req, res) => {
           { to: mailfrom, from:to, product_id: id },
         ],
       });
-      // console.log(newMessages)
+      // 
       res.json(newMessages);
     } catch (error) {
       console.error(error);

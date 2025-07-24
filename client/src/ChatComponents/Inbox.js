@@ -3,17 +3,19 @@ import { MDBCard, MDBCardBody, MDBTypography } from "mdb-react-ui-kit";
 import React, { useEffect, useState } from "react";
 import Loading from "../resources/Loading";
 import { Heading } from "@chakra-ui/react";
+import { getSafeImageUrl, handleImageError } from "../utils/imageUtils";
 
 export default function Inbox() {
   const [newChats, setNewChats] = useState([]);
   const authToken = localStorage.getItem("authToken");
   const authemail = localStorage.getItem("authemail");
   const [isLoading, setIsLoading] = useState(true);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchNewChats = async () => {
       try {
-        const response = await axios.get("https://random-backend-yjzj.onrender.com/api/newchats", {
+        const response = await axios.get(`${backendUrl}/api/newchats`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -23,6 +25,7 @@ export default function Inbox() {
         setIsLoading(false);
       } catch (error) {
         console.error(error);
+        setIsLoading(false);
       }
     };
 
@@ -32,7 +35,7 @@ export default function Inbox() {
     return () => {
       clearInterval(intervalId); // Clear the interval when the component unmounts
     };
-  }, [authToken, newChats]);
+  }, [authToken, backendUrl]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -60,7 +63,9 @@ export default function Inbox() {
   return (
     <>
       <h5 className="font-weight-bold mb-3 text-center text-lg-start">Inbox</h5>
-      {newChats.map((chat, index) => (
+      {newChats
+        .filter(chat => chat && chat.message) // Filter out invalid chat objects
+        .map((chat, index) => (
         <MDBCard key={index}>
           <MDBCardBody>
             <MDBTypography listUnStyled className="mb-0">
@@ -78,13 +83,16 @@ export default function Inbox() {
                 >
                   <div className="d-flex flex-row">
                     <img
-                      src={chat.user.picture}
+                      src={getSafeImageUrl(chat.user?.picture, 60)}
                       alt="avatar"
                       className="rounded-circle d-flex align-self-center me-3 shadow-1-strong"
                       width="60"
+                      height="60"
+                      style={{ objectFit: 'cover' }}
+                      onError={handleImageError}
                     />
                     <div className="pt-1">
-                      <p className="fw-bold mb-0">{chat.user.name}</p>
+                      <p className="fw-bold mb-0">{chat.user?.name || "Unknown User"}</p>
                       <p className="small text-muted">
                         {chat.message.length > 8
                           ? chat.message.substring(0, 8) + "..."

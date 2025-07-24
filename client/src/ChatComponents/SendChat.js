@@ -1,13 +1,15 @@
+import React, { useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { MDBBtn, MDBTextArea } from "mdb-react-ui-kit";
-import React, { useState } from "react";
 import { Form } from "react-bootstrap";
 
-export default function SendChat({ id , to }) {
+export default function SendChat({ id, to }) {
   const [message, setMessage] = useState("");
   const authToken = localStorage.getItem("authToken");
   const toast = useToast();
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  
   const handleMessageChange = (event) => {
     setMessage(event.target.value);
   };
@@ -16,7 +18,7 @@ export default function SendChat({ id , to }) {
     e.preventDefault();
     if (message) {
       const response = await axios.post(
-        "https://random-backend-yjzj.onrender.com/sendMessage",
+        `${backendUrl}/sendMessage`,
         { message, id, to },
         {
           headers: {

@@ -11,10 +11,11 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [visibleproducts, setVisibleProducts] = useState(6);
   const hasMoreProductsToLoad = visibleproducts < products.length;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const getProducts = async () => {
     try {
-      const response = await axios.get("https://random-backend-yjzj.onrender.com/getProducts");
+      const response = await axios.get(`${backendUrl}/getProducts`);
       setProducts(response.data);
       setLoading(false);
     } catch (err) {

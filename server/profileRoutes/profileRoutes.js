@@ -38,12 +38,12 @@ const generateVerificationToken = () => {
         // If an entry exists, update only the token
         existingToken.token = verificationOTP;
         await existingToken.save();
-        // console.log("Updated email-token mapping:", existingToken);
+        // 
       } else {
         // If no entry exists, create a new entry
         const newToken = new VerificationToken({ email, token: verificationOTP });
         await newToken.save();
-        // console.log("Saved email-token mapping:", newToken);
+        // 
       }
       // Compose the email content
       const mailOptions = {
@@ -82,7 +82,7 @@ const generateVerificationToken = () => {
         { email: email, isEmailVerified: true },
         { new: true }
       );
-      // console.log(updatedUser);
+      // 
   
       const updatedToken = jwt.sign(
         {
@@ -134,9 +134,9 @@ const generateVerificationToken = () => {
       const { name, imageUrl, phoneNumber } = req.body;
   
       // Console log the values
-      console.log("Name:", name);
-      console.log("Image URL:", imageUrl);
-      console.log("Phone Number:", phoneNumber);
+      
+      
+      
   
       // Find the user by their ID (assuming you have the user ID available in the `req.user` object)
       const updatedUser = await User.findByIdAndUpdate(req.user.userId, {
@@ -145,7 +145,7 @@ const generateVerificationToken = () => {
         phonenumber: phoneNumber,
       });
   
-      console.log("User updated:", updatedUser);
+      
       res.status(200).json({
         name,
         picture: imageUrl,
