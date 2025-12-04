@@ -45,12 +45,71 @@ const generateVerificationToken = () => {
         await newToken.save();
         // 
       }
-      // Compose the email content
+      // Compose the email content with beautiful HTML template
       const mailOptions = {
-        from: "naveed.qadir012@gmail.com",
+        from: process.env.EMAIL_USER,
         to: email,
-        subject: "OTP Verification",
-        text: `Your verification OTP is: ${verificationOTP}`,
+        subject: "Verify Your Email - Random",
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; margin-top: 40px; margin-bottom: 40px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);">
+              <!-- Header -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                  <div style="width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 32px;">✉️</span>
+                  </div>
+                  <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">Verify Your Email</h1>
+                  <p style="color: rgba(255, 255, 255, 0.85); margin: 8px 0 0; font-size: 16px;">One step away from completing your profile</p>
+                </td>
+              </tr>
+              
+              <!-- Body -->
+              <tr>
+                <td style="padding: 40px 30px;">
+                  <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">Hello! 👋</p>
+                  <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">Thank you for updating your email address. To complete the verification, please use the OTP code below:</p>
+                  
+                  <!-- OTP Box -->
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-radius: 16px; padding: 30px; text-align: center; border: 2px dashed rgba(102, 126, 234, 0.3);">
+                        <p style="color: #667eea; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px; font-weight: 600;">Your Verification Code</p>
+                        <div style="font-size: 42px; font-weight: 700; letter-spacing: 12px; color: #764ba2; font-family: 'Courier New', monospace;">${verificationOTP}</div>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <!-- Info Box -->
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top: 24px;">
+                    <tr>
+                      <td style="background: #fef3c7; border-radius: 12px; padding: 16px 20px; border-left: 4px solid #f59e0b;">
+                        <p style="color: #92400e; font-size: 14px; margin: 0;">⏰ This code will expire in <strong>15 minutes</strong>. Please verify your email promptly.</p>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <p style="color: #718096; font-size: 14px; line-height: 1.6; margin: 24px 0 0;">If you didn't request this verification, you can safely ignore this email. Someone might have entered your email by mistake.</p>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background: #f7fafc; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="color: #a0aec0; font-size: 13px; margin: 0 0 8px;">This email was sent by Random</p>
+                  <p style="color: #cbd5e0; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Random. All rights reserved.</p>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `,
       };
       // Send the verification email
       await transporter.sendMail(mailOptions);

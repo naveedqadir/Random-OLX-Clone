@@ -1,24 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Navbar from "./Navbar";
-import "./App.css"
-import Footer from "./Footer";
-import Home from "./Home";
-import MaintenancePage from "./resources/MaintenancePage"; // Import the MaintenancePage component
-import Sell from "./Sell";
-import Modallogin from "./Modallogin";
-import SellForm from "./SellForm";
-import AdSuccess from "./SellFormComponents/AdSuccess";
-import UserProfileEdit from "./UserProfileEdit";
-import Profile from "./Profile";
-import NotFound from "./resources/NotFound";
-import Myads from "./Myads";
-import PreviewAd from "./PreviewAd";
-import CatagoryView from "./CatagoryView";
-import SearchResults from "./SearchComponents/SearchResults";
-import MyChat from "./MyChat";
-import SearchProfile from "./SearchProfile";
-import Loading from "./resources/Loading";
+import "./App.css";
+
+// Layout Components
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+
+// Pages
+import Home from "./pages/Home";
+import About from "./pages/About";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
+import HelpCenter from "./pages/HelpCenter";
+
+// Auth Components
+import Modallogin from "./components/auth/Modallogin";
+
+// Common Components
+import Loading from "./components/common/Loading";
+import NotFound from "./components/common/NotFound";
+import MaintenancePage from "./components/common/MaintenancePage";
+
+// Feature: Ads
+import PreviewAd from "./features/ads/PreviewAd";
+import CatagoryView from "./features/ads/CatagoryView";
+import Myads from "./features/ads/Myads";
+
+// Feature: Sell
+import Sell from "./features/sell/Sell";
+import SellForm from "./features/sell/SellForm";
+import AdSuccess from "./features/sell/AdSuccess";
+
+// Feature: Profile
+import UserProfileEdit from "./features/profile/UserProfileEdit";
+import Profile from "./features/profile/Profile";
+import SearchProfile from "./features/profile/SearchProfile";
+
+// Feature: Search
+import SearchResults from "./features/search/SearchResults";
+
+// Feature: Chat
+import MyChat from "./features/chat/MyChat";
+
+// Feature: Admin
+import AdminDashboard from "./features/admin/AdminDashboard";
 
 
 function App() {
@@ -79,6 +105,7 @@ function App() {
   useEffect(() => {
     checkBackendStatus();
     checkAuthentication();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
     if (loading) {
@@ -105,10 +132,16 @@ function App() {
     {auth === true && <Route path="/profile" element={<Profile />} />}
     {auth === true && <Route path="/myads" element={<Myads />} />}
     {auth === true && <Route path="/sell" element={<Sell />} />}
+    {auth === true && <Route path="/admin" element={<AdminDashboard />} />}
     {auth === false && <Route path="/sell" element={[<Modallogin setStaticModal={setStaticModal} toggleShow={toggleShow} staticModal={staticModal} />, <Home />]} />}
     <Route path="/:category" element={<CatagoryView />} />
     <Route path="/results" element={<SearchResults />} />
     <Route path="/profile/:useremail" element={<SearchProfile />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/privacy" element={<PrivacyPolicy />} />
+    <Route path="/terms" element={<TermsOfService />} />
+    <Route path="/contact" element={<Contact />} />
+    <Route path="/help" element={<HelpCenter />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 </Router>

@@ -18,11 +18,19 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   picture: {
     type: String,
   },
   phonenumber: {
     type: String,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 const User = mongoose.model("User", UserSchema);

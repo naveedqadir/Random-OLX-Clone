@@ -13,6 +13,8 @@ const authRoutes = require('./authRoutes/authRoutes');
 const googleAuthRoutes = require('./authRoutes/googleAuthRoutes');
 const chatRoutes = require('./chatRoutes/chatRoutes');
 const profileRoutes = require('./profileRoutes/profileRoutes');
+const contactRoutes = require('./contactRoutes/contactRoutes');
+const adminRoutes = require('./adminRoutes/adminRoutes');
 
 
 const cloudinary = require('cloudinary').v2;
@@ -43,36 +45,93 @@ app.use('/', authRoutes);
 app.use('/', googleAuthRoutes);
 app.use('/', profileRoutes);
 app.use('/', chatRoutes);
+app.use('/', contactRoutes);
+app.use('/', adminRoutes);
 
 
 app.post("/add_product", auth, async (req, res) => {
   try {
+    const { title, description, address, price, uploadedFiles, name, catagory, subcatagory, image } = req.body;
+    
+    // Validation
+    const errors = [];
+    
+    if (!title || title.trim().length === 0) {
+      errors.push("Title is required");
+    } else if (title.length < 3) {
+      errors.push("Title must be at least 3 characters");
+    } else if (title.length > 100) {
+      errors.push("Title must be less than 100 characters");
+    }
+    
+    if (!description || description.trim().length === 0) {
+      errors.push("Description is required");
+    } else if (description.length < 10) {
+      errors.push("Description must be at least 10 characters");
+    } else if (description.length > 5000) {
+      errors.push("Description must be less than 5000 characters");
+    }
+    
+    if (!address || (typeof address === 'object' && Object.keys(address).length === 0)) {
+      errors.push("Location is required");
+    }
+    
+    if (!price || isNaN(price) || price <= 0) {
+      errors.push("Valid price is required");
+    } else if (price > 100000000) {
+      errors.push("Price cannot exceed ₹10 crore");
+    }
+    
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      errors.push("At least one product image is required");
+    } else if (uploadedFiles.length > 12) {
+      errors.push("Maximum 12 images allowed");
+    }
+    
+    if (!name || name.trim().length === 0) {
+      errors.push("Seller name is required");
+    }
+    
+    if (!catagory) {
+      errors.push("Category is required");
+    }
+    
+    if (!subcatagory) {
+      errors.push("Subcategory is required");
+    }
+    
+    if (errors.length > 0) {
+      return res.status(400).json({ 
+        message: "Validation failed", 
+        errors: errors 
+      });
+    }
+
     // Create a new Product document
     const product = new Product({
       useremail: req.user.userEmail,
-      title: req.body.title,
-      description: req.body.description,
-      address: req.body.address,
-      price: req.body.price,
-      owner: req.body.name,
-      ownerpicture: req.body.image,
-      catagory: req.body.catagory,
-      subcatagory: req.body.subcatagory,
+      title: title.trim(),
+      description: description.trim(),
+      address: address,
+      price: price,
+      owner: name.trim(),
+      ownerpicture: image || '',
+      catagory: catagory,
+      subcatagory: subcatagory,
     });
 
     // Save the uploaded files in pic1 to pic12 fields
-    for (let i = 0; i < req.body.uploadedFiles.length && i < 12; i++) {
+    for (let i = 0; i < uploadedFiles.length && i < 12; i++) {
       const fieldName = `productpic${i + 1}`;
-      product[fieldName] = req.body.uploadedFiles[i];
+      product[fieldName] = uploadedFiles[i];
     }
     // Save the product document
     await product.save();
 
-    
-    res.status(200).send("The product has been saved successfully.");
+    res.status(200).json({ message: "The product has been saved successfully.", productId: product._id });
   } catch (err) {
-    
-    res.status(500).send("Failed to save the product.");
+    console.error("Error saving product:", err);
+    res.status(500).json({ message: "Failed to save the product." });
   }
 });
 
