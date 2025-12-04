@@ -117,7 +117,6 @@ const CurrentLocation = ({
       city: cityDropdownValue,
       area: event.target.value,
     };
-    setLocation(loc);
     if (stateDropdownValue && cityDropdownValue) {
       onlocationSelect(loc);
     }

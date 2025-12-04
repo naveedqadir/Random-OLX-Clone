@@ -130,7 +130,6 @@ export default function UserProfileEdit() {
   };
 
   const handlePinSubmit = async (value) => {
-    setPin(value);
     setSending(true);
     try {
       const authToken = localStorage.getItem("authToken");
