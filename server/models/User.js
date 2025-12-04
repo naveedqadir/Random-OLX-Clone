@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema({
   isEmailVerified: {
     type: Boolean,
     default: false,
+    index: true,
   },
   isAdmin: {
     type: Boolean,
@@ -31,8 +32,13 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+    index: true,
   },
 });
+
+// Compound index for admin dashboard queries
+UserSchema.index({ createdAt: -1 });
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;

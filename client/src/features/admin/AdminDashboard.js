@@ -69,6 +69,8 @@ import {
   FiCalendar,
   FiBarChart2,
   FiEye,
+  FiMail,
+  FiInbox,
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import Loading from '../../components/common/Loading';
@@ -79,15 +81,20 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [userPagination, setUserPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [productPagination, setProductPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [contactPagination, setContactPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [userSearch, setUserSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
+  const [contactSearch, setContactSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [deleteItem, setDeleteItem] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
   
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
@@ -132,6 +139,7 @@ export default function AdminDashboard() {
       fetchStats(),
       fetchUsers(1),
       fetchProducts(1),
+      fetchContacts(1),
       fetchCategories()
     ]);
     setLoading(false);
@@ -183,6 +191,68 @@ export default function AdminDashboard() {
       setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
+    }
+  };
+
+  const fetchContacts = async (page = 1, search = contactSearch, status = statusFilter) => {
+    try {
+      const response = await axios.get(
+        `${backendUrl}/admin/contacts?page=${page}&limit=10&search=${search}&status=${status}`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      setContacts(response.data.contacts);
+      setContactPagination(response.data.pagination);
+    } catch (error) {
+      console.error('Failed to fetch contacts:', error);
+    }
+  };
+
+  const handleUpdateContactStatus = async (contactId, status) => {
+    try {
+      await axios.patch(
+        `${backendUrl}/admin/contacts/${contactId}/status`,
+        { status },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      toast({
+        title: 'Status Updated',
+        description: `Contact marked as ${status}`,
+        status: 'success',
+        duration: 2000,
+      });
+      fetchContacts(contactPagination.page);
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to update status',
+        status: 'error',
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleDeleteContact = async () => {
+    try {
+      await axios.delete(`${backendUrl}/admin/contacts/${deleteItem._id}`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      toast({
+        title: 'Contact Deleted',
+        description: 'Contact message has been removed',
+        status: 'success',
+        duration: 3000,
+      });
+      fetchContacts(contactPagination.page);
+      fetchStats();
+      onClose();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to delete contact',
+        status: 'error',
+        duration: 3000,
+      });
     }
   };
 
@@ -327,7 +397,7 @@ export default function AdminDashboard() {
         </Flex>
 
         {/* Stats Overview */}
-        <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={6} mb={8}>
+        <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(5, 1fr)' }} gap={6} mb={8}>
           <Card bg={cardBg} shadow="sm" borderRadius="xl">
             <CardBody>
               <Flex justify="space-between" align="flex-start">
@@ -374,6 +444,23 @@ export default function AdminDashboard() {
                 </Stat>
                 <Box p={3} bg="purple.50" borderRadius="lg">
                   <Icon as={FiMessageSquare} boxSize={6} color="purple.500" />
+                </Box>
+              </Flex>
+            </CardBody>
+          </Card>
+
+          <Card bg={cardBg} shadow="sm" borderRadius="xl">
+            <CardBody>
+              <Flex justify="space-between" align="flex-start">
+                <Stat>
+                  <StatLabel color="gray.500">Contact Messages</StatLabel>
+                  <StatNumber fontSize="3xl" color="teal.500">{stats?.overview?.totalContacts || 0}</StatNumber>
+                  <StatHelpText>
+                    <Badge colorScheme="red" fontSize="xs">{stats?.overview?.newContacts || 0} new</Badge>
+                  </StatHelpText>
+                </Stat>
+                <Box p={3} bg="teal.50" borderRadius="lg">
+                  <Icon as={FiInbox} boxSize={6} color="teal.500" />
                 </Box>
               </Flex>
             </CardBody>
@@ -535,6 +622,7 @@ export default function AdminDashboard() {
             <TabList px={6} pt={4}>
               <Tab><HStack><Icon as={FiUsers} /><Text>Users</Text></HStack></Tab>
               <Tab><HStack><Icon as={FiPackage} /><Text>Products</Text></HStack></Tab>
+              <Tab><HStack><Icon as={FiMail} /><Text>Contacts</Text><Badge ml={1} colorScheme="red" borderRadius="full">{stats?.overview?.newContacts || 0}</Badge></HStack></Tab>
             </TabList>
 
             <TabPanels>
@@ -641,15 +729,19 @@ export default function AdminDashboard() {
                   </Text>
                   <ButtonGroup size="sm">
                     <Button
+                      colorScheme="pink"
+                      variant="outline"
                       onClick={() => fetchUsers(userPagination.page - 1)}
                       isDisabled={userPagination.page <= 1}
                     >
                       Previous
                     </Button>
-                    <Button variant="ghost" cursor="default">
+                    <Button variant="solid" cursor="default" colorScheme="pink">
                       {userPagination.page} / {userPagination.pages}
                     </Button>
                     <Button
+                      colorScheme="pink"
+                      variant="outline"
                       onClick={() => fetchUsers(userPagination.page + 1)}
                       isDisabled={userPagination.page >= userPagination.pages}
                     >
@@ -779,17 +871,197 @@ export default function AdminDashboard() {
                   </Text>
                   <ButtonGroup size="sm">
                     <Button
+                      colorScheme="pink"
+                      variant="outline"
                       onClick={() => fetchProducts(productPagination.page - 1)}
                       isDisabled={productPagination.page <= 1}
                     >
                       Previous
                     </Button>
-                    <Button variant="ghost" cursor="default">
+                    <Button variant="solid" cursor="default" colorScheme="pink">
                       {productPagination.page} / {productPagination.pages}
                     </Button>
                     <Button
+                      colorScheme="pink"
+                      variant="outline"
                       onClick={() => fetchProducts(productPagination.page + 1)}
                       isDisabled={productPagination.page >= productPagination.pages}
+                    >
+                      Next
+                    </Button>
+                  </ButtonGroup>
+                </Flex>
+              </TabPanel>
+
+              {/* Contacts Tab */}
+              <TabPanel>
+                <HStack mb={4} flexWrap="wrap" gap={2}>
+                  <InputGroup maxW="300px">
+                    <InputLeftElement>
+                      <Icon as={FiSearch} color="gray.400" />
+                    </InputLeftElement>
+                    <Input
+                      placeholder="Search contacts..."
+                      value={contactSearch}
+                      onChange={(e) => setContactSearch(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && fetchContacts(1, contactSearch, statusFilter)}
+                    />
+                  </InputGroup>
+                  <Select
+                    maxW="150px"
+                    placeholder="All Status"
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      fetchContacts(1, contactSearch, e.target.value);
+                    }}
+                  >
+                    <option value="new">New</option>
+                    <option value="read">Read</option>
+                    <option value="replied">Replied</option>
+                    <option value="resolved">Resolved</option>
+                  </Select>
+                  <Button colorScheme="pink" onClick={() => fetchContacts(1, contactSearch, statusFilter)}>Search</Button>
+                </HStack>
+
+                <Box overflowX="auto">
+                  <Table variant="simple">
+                    <Thead>
+                      <Tr>
+                        <Th>From</Th>
+                        <Th>Subject</Th>
+                        <Th>Message</Th>
+                        <Th>Status</Th>
+                        <Th>Date</Th>
+                        <Th>Actions</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {contacts.map((contact) => (
+                        <Tr key={contact._id} bg={contact.status === 'new' ? 'pink.50' : 'transparent'}>
+                          <Td>
+                            <VStack align="start" spacing={0}>
+                              <Text fontWeight="medium">{contact.name}</Text>
+                              <Text fontSize="xs" color="gray.500">{contact.email}</Text>
+                            </VStack>
+                          </Td>
+                          <Td>
+                            <Text noOfLines={1} maxW="200px" fontWeight={contact.status === 'new' ? 'semibold' : 'normal'}>
+                              {contact.subject}
+                            </Text>
+                          </Td>
+                          <Td>
+                            <Tooltip label={contact.message} placement="top" hasArrow>
+                              <Text noOfLines={2} maxW="250px" fontSize="sm" color="gray.600">
+                                {contact.message}
+                              </Text>
+                            </Tooltip>
+                          </Td>
+                          <Td>
+                            <Badge 
+                              colorScheme={
+                                contact.status === 'new' ? 'red' : 
+                                contact.status === 'read' ? 'yellow' : 
+                                contact.status === 'replied' ? 'blue' : 'green'
+                              }
+                            >
+                              {contact.status}
+                            </Badge>
+                          </Td>
+                          <Td>
+                            <Text fontSize="sm">{formatDate(contact.createdAt)}</Text>
+                          </Td>
+                          <Td>
+                            <Menu>
+                              <MenuButton
+                                as={IconButton}
+                                icon={<FiMoreVertical />}
+                                variant="ghost"
+                                size="sm"
+                              />
+                              <MenuList>
+                                <MenuItem
+                                  icon={<FiEye />}
+                                  onClick={() => {
+                                    setSelectedContact(contact);
+                                    if (contact.status === 'new') {
+                                      handleUpdateContactStatus(contact._id, 'read');
+                                    }
+                                  }}
+                                >
+                                  View Details
+                                </MenuItem>
+                                {contact.status !== 'read' && (
+                                  <MenuItem
+                                    icon={<FiCheck />}
+                                    onClick={() => handleUpdateContactStatus(contact._id, 'read')}
+                                  >
+                                    Mark as Read
+                                  </MenuItem>
+                                )}
+                                {contact.status !== 'replied' && (
+                                  <MenuItem
+                                    icon={<FiMessageSquare />}
+                                    onClick={() => handleUpdateContactStatus(contact._id, 'replied')}
+                                  >
+                                    Mark as Replied
+                                  </MenuItem>
+                                )}
+                                {contact.status !== 'resolved' && (
+                                  <MenuItem
+                                    icon={<FiCheck />}
+                                    onClick={() => handleUpdateContactStatus(contact._id, 'resolved')}
+                                  >
+                                    Mark as Resolved
+                                  </MenuItem>
+                                )}
+                                <MenuItem
+                                  icon={<FiTrash2 />}
+                                  color="red.500"
+                                  onClick={() => {
+                                    setDeleteItem({ ...contact, type: 'contact' });
+                                    onOpen();
+                                  }}
+                                >
+                                  Delete
+                                </MenuItem>
+                              </MenuList>
+                            </Menu>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </Box>
+
+                {contacts.length === 0 && (
+                  <Text color="gray.500" textAlign="center" py={8}>
+                    No contact messages found
+                  </Text>
+                )}
+
+                {/* Contact Pagination */}
+                <Flex justify="space-between" align="center" mt={4}>
+                  <Text color="gray.500" fontSize="sm">
+                    Showing {contactPagination.total > 0 ? ((contactPagination.page - 1) * 10) + 1 : 0}-{Math.min(contactPagination.page * 10, contactPagination.total)} of {contactPagination.total} contacts
+                  </Text>
+                  <ButtonGroup size="sm">
+                    <Button
+                      colorScheme="pink"
+                      variant="outline"
+                      onClick={() => fetchContacts(contactPagination.page - 1)}
+                      isDisabled={contactPagination.page <= 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button variant="solid" cursor="default" colorScheme="pink">
+                      {contactPagination.page} / {contactPagination.pages || 1}
+                    </Button>
+                    <Button
+                      colorScheme="pink"
+                      variant="outline"
+                      onClick={() => fetchContacts(contactPagination.page + 1)}
+                      isDisabled={contactPagination.page >= contactPagination.pages}
                     >
                       Next
                     </Button>
@@ -809,7 +1081,7 @@ export default function AdminDashboard() {
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                Delete {deleteItem?.type === 'user' ? 'User' : 'Product'}
+                Delete {deleteItem?.type === 'user' ? 'User' : deleteItem?.type === 'product' ? 'Product' : 'Contact'}
               </AlertDialogHeader>
 
               <AlertDialogBody>
@@ -818,24 +1090,97 @@ export default function AdminDashboard() {
                     Are you sure you want to delete <strong>{deleteItem?.name || deleteItem?.email}</strong>?
                     This will also delete all their products and cannot be undone.
                   </>
-                ) : (
+                ) : deleteItem?.type === 'product' ? (
                   <>
                     Are you sure you want to delete <strong>{deleteItem?.title}</strong>?
+                    This action cannot be undone.
+                  </>
+                ) : (
+                  <>
+                    Are you sure you want to delete this contact message from <strong>{deleteItem?.name}</strong>?
                     This action cannot be undone.
                   </>
                 )}
               </AlertDialogBody>
 
               <AlertDialogFooter>
-                <Button ref={cancelRef} onClick={onClose}>
+                <Button ref={cancelRef} onClick={onClose} colorScheme="blackAlpha" variant="solid">
                   Cancel
                 </Button>
                 <Button
                   colorScheme="red"
-                  onClick={deleteItem?.type === 'user' ? handleDeleteUser : handleDeleteProduct}
+                  onClick={deleteItem?.type === 'user' ? handleDeleteUser : deleteItem?.type === 'product' ? handleDeleteProduct : handleDeleteContact}
                   ml={3}
                 >
                   Delete
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+
+        {/* Contact Details Modal */}
+        <AlertDialog
+          isOpen={selectedContact !== null}
+          leastDestructiveRef={cancelRef}
+          onClose={() => setSelectedContact(null)}
+          size="lg"
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Contact Message Details
+              </AlertDialogHeader>
+
+              <AlertDialogBody>
+                {selectedContact && (
+                  <VStack align="stretch" spacing={4}>
+                    <Box>
+                      <Text fontWeight="bold" color="gray.500" fontSize="sm">From</Text>
+                      <Text>{selectedContact.name}</Text>
+                      <Text fontSize="sm" color="gray.600">{selectedContact.email}</Text>
+                    </Box>
+                    <Box>
+                      <Text fontWeight="bold" color="gray.500" fontSize="sm">Subject</Text>
+                      <Text>{selectedContact.subject}</Text>
+                    </Box>
+                    <Box>
+                      <Text fontWeight="bold" color="gray.500" fontSize="sm">Message</Text>
+                      <Box bg="gray.50" p={4} borderRadius="md" maxH="200px" overflowY="auto">
+                        <Text whiteSpace="pre-wrap">{selectedContact.message}</Text>
+                      </Box>
+                    </Box>
+                    <HStack>
+                      <Text fontWeight="bold" color="gray.500" fontSize="sm">Status:</Text>
+                      <Badge 
+                        colorScheme={
+                          selectedContact.status === 'new' ? 'red' : 
+                          selectedContact.status === 'read' ? 'yellow' : 
+                          selectedContact.status === 'replied' ? 'blue' : 'green'
+                        }
+                      >
+                        {selectedContact.status}
+                      </Badge>
+                    </HStack>
+                    <Text fontSize="xs" color="gray.400">
+                      Received: {formatDate(selectedContact.createdAt)}
+                    </Text>
+                  </VStack>
+                )}
+              </AlertDialogBody>
+
+              <AlertDialogFooter>
+                <Button onClick={() => setSelectedContact(null)} colorScheme="blackAlpha" variant="solid">
+                  Close
+                </Button>
+                <Button
+                  colorScheme="blue"
+                  ml={3}
+                  onClick={() => {
+                    window.location.href = `mailto:${selectedContact?.email}?subject=Re: ${selectedContact?.subject}`;
+                  }}
+                >
+                  Reply via Email
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>

@@ -25,12 +25,17 @@ const contactSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['new', 'read', 'replied', 'resolved'],
-    default: 'new'
+    default: 'new',
+    index: true
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    index: true
   }
 });
+
+// Compound index for common admin queries
+contactSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Contact', contactSchema);

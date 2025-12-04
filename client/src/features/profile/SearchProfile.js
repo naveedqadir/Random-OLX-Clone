@@ -13,55 +13,73 @@ import {
 } from "@chakra-ui/react";
 import CatNavbar from "../../components/layout/CatNavbar";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import ProductCardProfile from "../ads/ProductCards/ProductCardProfile";
 import NotListedAnything from "../../components/common/NotListedAnything";
 import Loading from "../../components/common/Loading";
+import NotFound from "../../components/common/NotFound";
 import { getAvatarProps } from "../../utils/imageUtils";
 import { FiShare2, FiPackage, FiUser } from "react-icons/fi";
 
 export default function SearchProfile() {
   const navigate = useNavigate();
   const { useremail } = useParams();
-  const [profileData, setProfileData] = useState({});
+  const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [products, setProducts] = useState([]);
   const [visibleproducts, setVisibleProducts] = useState(6);
   const hasMoreProductsToLoad = visibleproducts < products.length;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  if (useremail === localStorage.getItem("authemail")) {
-    navigate("/profile");
-  }
+  const fetchProfileData = useCallback(async () => {
+    // Check if viewing own profile - redirect
+    if (useremail === localStorage.getItem("authemail")) {
+      navigate("/profile", { replace: true });
+      return;
+    }
+
+    setIsLoading(true);
+    setNotFound(false);
+
+    try {
+      const [profileResponse, productsResponse] = await Promise.all([
+        axios.get(`${backendUrl}/profilesearch?useremail=${useremail}`),
+        axios.get(`${backendUrl}/getProductsbyemail?useremail=${useremail}`)
+      ]);
+
+      if (!profileResponse.data || !profileResponse.data.name) {
+        setNotFound(true);
+      } else {
+        setProfileData(profileResponse.data);
+        setProducts(productsResponse.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      setNotFound(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [useremail, backendUrl, navigate]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    axios
-      .get(`${backendUrl}/profilesearch?useremail=${useremail}`)
-      .then((response) => {
-        setProfileData(response.data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-      });
+    fetchProfileData();
+  }, [fetchProfileData]);
 
-    const getProducts = async () => {
-      try {
-        const response = await axios.get(
-          `${backendUrl}/getProductsbyemail?useremail=${useremail}`
-        );
-        setProducts(response.data);
-        setIsLoading(false);
-      } catch (err) {
-        console.error(err);
-        setIsLoading(false);
-      }
-    };
-    getProducts();
-  }, [useremail, backendUrl]);
-
+  // Show loading first - this prevents the flash of 404
   if (isLoading) {
+    return <Loading />;
+  }
+
+  // Show 404 only after loading is complete and profile not found
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  // Safety check - should not happen if logic above is correct
+  if (!profileData) {
     return <Loading />;
   }
 

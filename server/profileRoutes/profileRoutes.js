@@ -17,9 +17,29 @@ const generateVerificationToken = () => {
   };
   
   // Send verification OTP
-  app.post("/send-verification-email", async (req, res) => {
+  app.post("/send-verification-email", auth, async (req, res) => {
     const { email } = req.body;
+    const currentUserEmail = req.user.userEmail;
+
     try {
+      // If the email is the same as the current user's email, just send verification
+      if (email.toLowerCase() === currentUserEmail.toLowerCase()) {
+        // Same email - proceed with verification
+      } else {
+        // Check if the new email is already used by another user
+        const existingUser = await User.findOne({ 
+          email: email.toLowerCase(),
+          _id: { $ne: req.user.userId } // Exclude current user
+        });
+
+        if (existingUser) {
+          return res.status(409).json({ 
+            error: "Email already in use",
+            message: "This email address is already registered to another account. Please use a different email."
+          });
+        }
+      }
+
       // Check if an entry already exists for the email
       const existingToken = await VerificationToken.findOne({ email });
   
@@ -121,6 +141,21 @@ const generateVerificationToken = () => {
     const { email } = req.body;
   
     try {
+      // Double-check: Ensure the email isn't already taken by another user
+      if (email.toLowerCase() !== req.user.userEmail.toLowerCase()) {
+        const existingUser = await User.findOne({ 
+          email: email.toLowerCase(),
+          _id: { $ne: req.user.userId }
+        });
+
+        if (existingUser) {
+          return res.status(409).json({ 
+            error: "Email already in use",
+            message: "This email address is already registered to another account."
+          });
+        }
+      }
+
       // Find the verification token associated with the pin in the database
       const verificationToken = await VerificationToken.findOne({
         token: pin,

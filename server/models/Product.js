@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const ProductSchema = new mongoose.Schema({
   useremail: {
     type: String,
+    index: true,
   },
   title: {
     type: String,
@@ -61,6 +62,7 @@ const ProductSchema = new mongoose.Schema({
   catagory: {
     type: String,
     required: true,
+    index: true,
   },
   subcatagory: {
     type: String,
@@ -68,9 +70,14 @@ const ProductSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Set the default value to the current date and time
+    default: Date.now,
+    index: true,
   },
 });
+
+// Compound indexes for admin dashboard queries
+ProductSchema.index({ createdAt: -1 });
+ProductSchema.index({ catagory: 1, createdAt: -1 });
 
 const Product = mongoose.model("Product", ProductSchema);
 

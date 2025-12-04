@@ -2,24 +2,52 @@ const jwt = require("jsonwebtoken");
 
 module.exports = async (request, response, next) => {
   try {
-    //   get the token from the authorization header
-    const token = await request.headers.authorization.split(" ")[1];
+    // Check if authorization header exists
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      return response.status(401).json({
+        error: "Authentication required",
+        message: "Please log in to perform this action."
+      });
+    }
 
-    //check if the token matches the supposed origin
-    const decodedToken = await jwt.verify(token, "RANDOM-TOKEN");
+    // Get the token from the authorization header
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return response.status(401).json({
+        error: "Authentication required",
+        message: "Invalid authorization format. Please log in again."
+      });
+    }
 
-    // retrieve the user details of the logged in user
-    const user = await decodedToken;
+    // Check if the token matches the supposed origin
+    const decodedToken = jwt.verify(token, "RANDOM-TOKEN");
 
-    // pass the user down to the endpoints here
+    // Retrieve the user details of the logged in user
+    const user = decodedToken;
+
+    // Pass the user down to the endpoints here
     request.user = user;
 
-    // pass down functionality to the endpoint
+    // Pass down functionality to the endpoint
     next();
     
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return response.status(401).json({
+        error: "Session expired",
+        message: "Your session has expired. Please log in again."
+      });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return response.status(401).json({
+        error: "Invalid token",
+        message: "Invalid authentication. Please log in again."
+      });
+    }
     response.status(401).json({
-      error: new Error("Invalid request!"),
+      error: "Authentication failed",
+      message: "Please log in to continue."
     });
   }
 };

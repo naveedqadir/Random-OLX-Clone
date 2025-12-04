@@ -4,6 +4,7 @@ const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Message = require('../models/Message');
+const Contact = require('../models/Contact');
 const cloudinary = require('cloudinary').v2;
 
 // Check if user is admin
@@ -15,126 +16,100 @@ router.get('/admin/check', adminAuth, async (req, res) => {
   }
 });
 
-// Get dashboard statistics
+// Get dashboard statistics - OPTIMIZED with parallel queries
 router.get('/admin/stats', adminAuth, async (req, res) => {
   try {
-    // Get counts
-    const totalUsers = await User.countDocuments();
-    const totalProducts = await Product.countDocuments();
-    const totalMessages = await Message.countDocuments();
-    const verifiedUsers = await User.countDocuments({ isEmailVerified: true });
-
-    // Get users registered in last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const newUsersThisMonth = await User.countDocuments({
-      createdAt: { $gte: thirtyDaysAgo }
-    });
-
-    // Get products created in last 30 days
-    const newProductsThisMonth = await Product.countDocuments({
-      createdAt: { $gte: thirtyDaysAgo }
-    });
-
-    // Get products by category
-    const productsByCategory = await Product.aggregate([
-      {
-        $group: {
-          _id: '$catagory',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 }
-    ]);
-
-    // Get products created per day for last 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
-    const productsPerDay = await Product.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
-          },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
+
+    // Run all independent queries in parallel for better performance
+    const [
+      totalUsers,
+      totalProducts,
+      totalMessages,
+      totalContacts,
+      newContacts,
+      verifiedUsers,
+      newUsersThisMonth,
+      newProductsThisMonth,
+      productsByCategory,
+      productsPerDay,
+      usersPerDay,
+      topSellers,
+      priceStats,
+      recentProducts,
+      recentUsers,
+      recentContacts
+    ] = await Promise.all([
+      // Count queries
+      User.countDocuments(),
+      Product.countDocuments(),
+      Message.countDocuments(),
+      Contact.countDocuments(),
+      Contact.countDocuments({ status: 'new' }),
+      User.countDocuments({ isEmailVerified: true }),
+      User.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      Product.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      
+      // Aggregation queries
+      Product.aggregate([
+        { $group: { _id: '$catagory', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 }
+      ]),
+      
+      Product.aggregate([
+        { $match: { createdAt: { $gte: sevenDaysAgo } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ]),
+      
+      User.aggregate([
+        { $match: { createdAt: { $gte: sevenDaysAgo } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ]),
+      
+      Product.aggregate([
+        { $group: { _id: '$useremail', productCount: { $sum: 1 }, owner: { $first: '$owner' } } },
+        { $sort: { productCount: -1 } },
+        { $limit: 5 }
+      ]),
+      
+      Product.aggregate([
+        { $addFields: { numericPrice: { $toDouble: '$price' } } },
+        { $group: { _id: null, avgPrice: { $avg: '$numericPrice' }, maxPrice: { $max: '$numericPrice' }, minPrice: { $min: '$numericPrice' }, totalValue: { $sum: '$numericPrice' } } }
+      ]),
+      
+      // Recent data queries with lean() for better performance
+      Product.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('title price owner catagory createdAt useremail')
+        .lean(),
+      
+      User.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('name email isEmailVerified createdAt picture')
+        .lean(),
+      
+      Contact.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .select('name email subject status createdAt')
+        .lean()
     ]);
-
-    // Get users registered per day for last 7 days
-    const usersPerDay = await User.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
-          },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
-
-    // Get top sellers (users with most products)
-    const topSellers = await Product.aggregate([
-      {
-        $group: {
-          _id: '$useremail',
-          productCount: { $sum: 1 },
-          owner: { $first: '$owner' }
-        }
-      },
-      { $sort: { productCount: -1 } },
-      { $limit: 5 }
-    ]);
-
-    // Get price statistics
-    const priceStats = await Product.aggregate([
-      {
-        $addFields: {
-          numericPrice: { $toDouble: '$price' }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          avgPrice: { $avg: '$numericPrice' },
-          maxPrice: { $max: '$numericPrice' },
-          minPrice: { $min: '$numericPrice' },
-          totalValue: { $sum: '$numericPrice' }
-        }
-      }
-    ]);
-
-    // Get recent products
-    const recentProducts = await Product.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('title price owner catagory createdAt useremail');
-
-    // Get recent users
-    const recentUsers = await User.find()
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('name email isEmailVerified createdAt picture');
 
     res.json({
       overview: {
         totalUsers,
         totalProducts,
         totalMessages,
+        totalContacts,
+        newContacts,
         verifiedUsers,
         newUsersThisMonth,
         newProductsThisMonth,
@@ -146,7 +121,8 @@ router.get('/admin/stats', adminAuth, async (req, res) => {
       topSellers,
       priceStats: priceStats[0] || { avgPrice: 0, maxPrice: 0, minPrice: 0, totalValue: 0 },
       recentProducts,
-      recentUsers
+      recentUsers,
+      recentContacts
     });
   } catch (error) {
     console.error('Admin stats error:', error);
@@ -171,24 +147,33 @@ router.get('/admin/users', adminAuth, async (req, res) => {
         }
       : {};
 
-    const users = await User.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select('-password');
+    // Run users query and count in parallel
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('-password')
+        .lean(),
+      User.countDocuments(query)
+    ]);
 
-    const total = await User.countDocuments(query);
+    // Get product counts for all users in a single aggregation query
+    const userEmails = users.map(u => u.email);
+    const productCounts = await Product.aggregate([
+      { $match: { useremail: { $in: userEmails } } },
+      { $group: { _id: '$useremail', count: { $sum: 1 } } }
+    ]);
+    
+    const countMap = productCounts.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
 
-    // Get product count for each user
-    const usersWithProductCount = await Promise.all(
-      users.map(async (user) => {
-        const productCount = await Product.countDocuments({ useremail: user.email });
-        return {
-          ...user.toObject(),
-          productCount
-        };
-      })
-    );
+    const usersWithProductCount = users.map(user => ({
+      ...user,
+      productCount: countMap[user.email] || 0
+    }));
 
     res.json({
       users: usersWithProductCount,
@@ -227,12 +212,15 @@ router.get('/admin/products', adminAuth, async (req, res) => {
       query.catagory = category;
     }
 
-    const products = await Product.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Product.countDocuments(query);
+    // Run products query and count in parallel with lean() for performance
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Product.countDocuments(query)
+    ]);
 
     res.json({
       products,
@@ -380,6 +368,96 @@ router.get('/admin/categories', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Get categories error:', error);
     res.status(500).json({ message: 'Failed to fetch categories' });
+  }
+});
+
+// Get all contact messages with pagination
+router.get('/admin/contacts', adminAuth, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const status = req.query.status || '';
+    const search = req.query.search || '';
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    
+    if (status) {
+      query.status = status;
+    }
+    
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { subject: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const [contacts, total] = await Promise.all([
+      Contact.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Contact.countDocuments(query)
+    ]);
+
+    res.json({
+      contacts,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get contacts error:', error);
+    res.status(500).json({ message: 'Failed to fetch contacts' });
+  }
+});
+
+// Update contact message status
+router.patch('/admin/contacts/:id/status', adminAuth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['new', 'read', 'replied', 'resolved'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    const contact = await Contact.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    res.json({ message: 'Status updated', contact });
+  } catch (error) {
+    console.error('Update contact status error:', error);
+    res.status(500).json({ message: 'Failed to update status' });
+  }
+});
+
+// Delete a contact message
+router.delete('/admin/contacts/:id', adminAuth, async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndDelete(req.params.id);
+    
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
+    }
+
+    res.json({ message: 'Contact deleted successfully' });
+  } catch (error) {
+    console.error('Delete contact error:', error);
+    res.status(500).json({ message: 'Failed to delete contact' });
   }
 });
 

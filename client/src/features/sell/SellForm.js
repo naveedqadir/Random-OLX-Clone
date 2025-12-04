@@ -221,6 +221,23 @@ async function handleFormSubmit(event) {
 
   } catch (error) {
     setLoading("");
+    
+    // Handle authentication errors
+    if (error.response?.status === 401) {
+      toast({
+        title: "Please Log In",
+        description: error.response?.data?.message || "You need to be logged in to post an ad. Please log in and try again.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      // Redirect to home page after a short delay
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+      return;
+    }
+
     const errorMessage = error.response?.data?.errors?.join(". ") || 
                          error.response?.data?.message || 
                          "Failed to post your ad. Please try again.";

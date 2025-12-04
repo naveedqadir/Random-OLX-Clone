@@ -34,17 +34,20 @@ import {
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import { FiUser, FiMail, FiPhone, FiCamera, FiSave, FiArrowLeft, FiShield, FiAlertCircle } from "react-icons/fi";
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import CatNavbar from "../../components/layout/CatNavbar";
+import Loading from "../../components/common/Loading";
 import axios from "axios";
 import { getSafeImageUrl } from "../../utils/imageUtils";
 
 export default function UserProfileEdit() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const cloudinaryCloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
   const cloudinaryUploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
@@ -53,43 +56,57 @@ export default function UserProfileEdit() {
   const [verifyscr, Setverifyscr] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const toast = useToast();
-  const picture = localStorage.getItem("authpicture");
+  const [picture, setPicture] = useState(null);
 
   const OverlayOne = () => (
     <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(20px)" />
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [overlay, setOverlay] = React.useState(<OverlayOne />);
-  const authemail = localStorage.getItem("authemail");
-  const authphone = localStorage.getItem("authphone");
+  const [authemail, setAuthemail] = useState("");
 
-  useEffect(() => {
+  const initializeProfile = useCallback(async () => {
+    setIsInitialLoading(true);
+    
+    // Check if user is logged in
+    const authToken = localStorage.getItem("authToken");
+    const storedEmail = localStorage.getItem("authemail");
+    
+    if (!authToken || !storedEmail) {
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // Load data from localStorage
     const authname = localStorage.getItem("authname");
-    if (authname) {
-      setName(authname);
+    const storedPhone = localStorage.getItem("authphone");
+    const storedPicture = localStorage.getItem("authpicture");
+
+    if (authname) setName(authname);
+    if (storedEmail) {
+      setEmail(storedEmail);
+      setAuthemail(storedEmail);
     }
-    if (authemail) {
-      setEmail(authemail);
+    if (storedPhone) {
+      setPhoneNumber(storedPhone);
     }
-    if (authphone) {
-      setPhoneNumber(authphone);
+    if (storedPicture) setPicture(storedPicture);
+
+    // Verify email status
+    try {
+      const response = await fetch(`${backendUrl}/verification-status?email=${storedEmail}`);
+      const data = await response.json();
+      setIsVerified(data.isVerified);
+    } catch (error) {
+      console.error("Error verifying email:", error);
     }
-  }, [authemail, authphone]);
+
+    setIsInitialLoading(false);
+  }, [backendUrl, navigate]);
 
   useEffect(() => {
-    const verifyEmail = async () => {
-      try {
-        const response = await fetch(`${backendUrl}/verification-status?email=${authemail}`);
-        const data = await response.json();
-        setIsVerified(data.isVerified);
-      } catch (error) {
-        console.error("Error verifying email:", error);
-      }
-    };
-
-    verifyEmail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authemail]);
+    initializeProfile();
+  }, [initializeProfile]);
 
   function handleNameChange(event) {
     setName(event.target.value);
@@ -106,7 +123,12 @@ export default function UserProfileEdit() {
   const handleSendOtp = async (event) => {
     setSending(true);
     try {
-      await axios.post(`${backendUrl}/send-verification-email`, { email });
+      const authToken = localStorage.getItem("authToken");
+      await axios.post(
+        `${backendUrl}/send-verification-email`, 
+        { email },
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
       Setverifyscr(true);
       toast({
         title: "Verification Email Sent",
@@ -117,13 +139,26 @@ export default function UserProfileEdit() {
       });
     } catch (error) {
       console.error(error);
-      toast({
-        title: "Error",
-        description: "An error occurred while sending the verification email.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      if (error.response?.status === 409) {
+        // Email already in use by another account
+        toast({
+          title: "Email Already In Use",
+          description: error.response?.data?.message || "This email is already registered to another account. Please use a different email.",
+          status: "error",
+          duration: 7000,
+          isClosable: true,
+        });
+        // Reset email field to current email
+        setEmail(authemail);
+      } else {
+        toast({
+          title: "Error",
+          description: "An error occurred while sending the verification email.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } finally {
       setSending(false);
     }
@@ -157,19 +192,41 @@ export default function UserProfileEdit() {
       });
     } catch (error) {
       console.error("Error verifying email:", error);
-      toast({
-        title: "Error",
-        description: "Email verification failed.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      if (error.response?.status === 409) {
+        // Email already in use - this is a race condition safeguard
+        toast({
+          title: "Email Already In Use",
+          description: error.response?.data?.message || "This email is already registered to another account.",
+          status: "error",
+          duration: 7000,
+          isClosable: true,
+        });
+        setEmail(authemail);
+        onClose();
+        Setverifyscr(false);
+      } else {
+        toast({
+          title: "Error",
+          description: error.response?.data?.error || "Email verification failed. Please check the OTP and try again.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } finally {
       setSending(false);
     }
   };
 
-  const [imageUrl, setImageUrl] = useState(picture);
+  const [imageUrl, setImageUrl] = useState(null);
+  
+  // Update imageUrl when picture is loaded
+  useEffect(() => {
+    if (picture) {
+      setImageUrl(picture);
+    }
+  }, [picture]);
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -254,6 +311,11 @@ export default function UserProfileEdit() {
       setIsLoading(false);
     }
   };
+
+  // Show loading screen while initializing
+  if (isInitialLoading) {
+    return <Loading />;
+  }
   
   return (
     <Box bg="linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)" minH="100vh">
