@@ -342,15 +342,59 @@ graph LR
 
 ## 🔌 API Routes
 
-| Route Group | Base Path | Description |
-|-------------|-----------|-------------|
-| Auth | `/` | User registration, login, verification |
-| Google Auth | `/` | Google OAuth authentication |
-| Profile | `/` | User profile management |
-| Chat | `/` | Messaging between users |
-| Contact | `/` | Contact form submissions |
-| Admin | `/` | Administrative operations |
-| Products | `/add_product` | Product CRUD operations |
+### Authentication Routes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/check-status` | Check backend status |
+| GET | `/auth-endpoint` | Verify authentication |
+| POST | `/register` | User registration |
+| POST | `/login` | User login |
+| POST | `/google-auth` | Google OAuth login |
+| POST | `/forgot-password` | Password reset request |
+
+### Product Routes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/add_product` | Create new product listing |
+| GET | `/getProducts` | Get all products |
+| GET | `/getProductsbyCategory/:category` | Get products by category |
+| GET | `/getProductsbyemail` | Get products by user email |
+| GET | `/myads_view` | Get user's own ads |
+| DELETE | `/myads_delete/:id` | Delete a product |
+| POST | `/previewad/:id` | Get product details (authenticated) |
+| POST | `/previewad/notloggedin/:id` | Get product details (public) |
+| GET | `/search` | Search products |
+
+### Chat Routes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/sendMessage` | Send a message |
+| GET | `/api/new-messages` | Get new messages |
+| GET | `/api/inbox` | Get inbox messages |
+| GET | `/api/chat/:productId/:userEmail` | Get chat history |
+
+### Profile Routes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/send-verification-email` | Send email verification OTP |
+| POST | `/verify-email` | Verify email with OTP |
+| PUT | `/update-profile` | Update user profile |
+| GET | `/profile/:email` | Get user profile |
+
+### Contact Routes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/contact` | Submit contact form |
+
+### Admin Routes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/check` | Check admin status |
+| GET | `/admin/stats` | Get dashboard statistics |
+| GET | `/admin/users` | Get all users |
+| GET | `/admin/products` | Get all products |
+| DELETE | `/admin/users/:id` | Delete a user |
+| DELETE | `/admin/products/:id` | Delete a product |
 
 ---
 
@@ -466,12 +510,6 @@ MONGODB_URI=your-mongodb-uri
 |--------|-------------|
 | `npm start` | Start production server |
 | `npm run dev` | Start development server with nodemon |
-
----
-
-## 📸 Screenshots
-
-> Add screenshots of your application here
 
 ---
 
