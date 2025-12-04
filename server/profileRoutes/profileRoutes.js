@@ -172,7 +172,15 @@ const generateVerificationToken = () => {
         { email: email, isEmailVerified: true },
         { new: true }
       );
-      // 
+
+      // Delete the used verification token to prevent reuse
+      await VerificationToken.deleteOne({ _id: verificationToken._id });
+      
+      // Clean up any expired tokens for this email
+      await VerificationToken.deleteMany({ 
+        email: email, 
+        createdAt: { $lt: new Date(Date.now() - 15 * 60 * 1000) } // Older than 15 minutes
+      });
   
       const updatedToken = jwt.sign(
         {
