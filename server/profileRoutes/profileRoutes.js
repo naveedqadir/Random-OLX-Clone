@@ -4,20 +4,11 @@ const auth = require("../middleware/auth");
 const app = express();
 const VerificationToken = require('../models/VerificationToken');
 const User = require('../models/User');
-
-
-const nodemailer = require("nodemailer");
+const { Resend } = require('resend');
 const crypto = require("crypto");
 
-// Nodemailer configuration
-const transporter = nodemailer.createTransport({
-  // Configure the transporter based on your email service provider
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Resend configuration
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 // Store verification tokens and email addresses in memory (replace with database storage in production)
@@ -47,7 +38,7 @@ const generateVerificationToken = () => {
       }
       // Compose the email content with beautiful HTML template
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: process.env.RESEND_FROM_EMAIL,
         to: email,
         subject: "Verify Your Email - Random",
         html: `
@@ -111,8 +102,13 @@ const generateVerificationToken = () => {
           </html>
         `,
       };
-      // Send the verification email
-      await transporter.sendMail(mailOptions);
+      // Send the verification email using Resend
+      await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+      });
       return res.status(200).json({ message: "Verification OTP sent" });
     } catch (error) {
       console.error(error);

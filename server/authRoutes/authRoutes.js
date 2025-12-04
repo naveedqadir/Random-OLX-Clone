@@ -3,19 +3,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); // Import the User model here
 const VerificationToken = require('../models/VerificationToken');
-const nodemailer = require("nodemailer");
+const { Resend } = require('resend');
 
 const app = express();
 const auth = require("../middleware/auth");
 
-// Nodemailer configuration for password reset
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Resend configuration for password reset
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate 4-digit OTP
 const generateResetOTP = () => {
@@ -184,7 +178,7 @@ app.post("/forgot-password", async (req, res) => {
 
     // Send email with OTP - Beautiful HTML template
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.RESEND_FROM_EMAIL,
       to: email,
       subject: "Reset Your Password - Random",
       html: `
@@ -257,7 +251,13 @@ app.post("/forgot-password", async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    // Send email using Resend
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    });
     return res.status(200).json({ message: "Password reset OTP sent to your email" });
   } catch (error) {
     console.error("Forgot password error:", error);
