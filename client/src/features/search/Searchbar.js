@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input, InputGroup, InputRightElement, IconButton, Box } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 
 export default function Searchbar() {
+  const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
@@ -14,8 +16,7 @@ export default function Searchbar() {
   const onSubmit = (e) => {
     e.preventDefault();
     if (input.trim()) {
-      const newUrl = `/results?query=${encodeURIComponent(input)}`;
-      window.location.href = newUrl;
+      navigate(`/results?query=${encodeURIComponent(input)}`);
     }
   }
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Avatar,
   Button,
@@ -36,6 +37,7 @@ import axios from "axios";
 import Modallogin from "../auth/Modallogin";
 
 export default function Navbar({ auth, setAuth }) {
+  const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
@@ -72,14 +74,14 @@ export default function Navbar({ auth, setAuth }) {
     localStorage.removeItem("authname");
     localStorage.removeItem("authpicture");
     localStorage.removeItem("authphone");
-    window.location.href = "/";
+    navigate("/");
     setAuth(false);
   }
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/results?query=${encodeURIComponent(searchQuery)}`;
+      navigate(`/results?query=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -101,8 +103,8 @@ export default function Navbar({ auth, setAuth }) {
           {/* Logo */}
           <HStack spacing={8}>
             <Box 
-              as="a" 
-              href="/" 
+              as={Link} 
+              to="/" 
               display="flex" 
               alignItems="center"
               _hover={{ transform: 'scale(1.02)' }}
@@ -119,7 +121,7 @@ export default function Navbar({ auth, setAuth }) {
 
             {/* Navigation Links - Desktop */}
             <HStack spacing={6} display={{ base: 'none', lg: 'flex' }}>
-              <Box as="a" href="/">
+              <Box as={Link} to="/">
                 <Text 
                   fontWeight="600" 
                   color="gray.600" 
@@ -129,7 +131,7 @@ export default function Navbar({ auth, setAuth }) {
                   Home
                 </Text>
               </Box>
-              <Box as="a" href="/Electronics & Appliances">
+              <Box as={Link} to="/Electronics & Appliances">
                 <Text 
                   fontWeight="600" 
                   color="gray.600" 
@@ -139,7 +141,7 @@ export default function Navbar({ auth, setAuth }) {
                   Electronics
                 </Text>
               </Box>
-              <Box as="a" href="/OLX Autos (Cars)">
+              <Box as={Link} to="/OLX Autos (Cars)">
                 <Text 
                   fontWeight="600" 
                   color="gray.600" 
@@ -198,8 +200,8 @@ export default function Navbar({ auth, setAuth }) {
           <HStack spacing={3}>
             {auth && (
               <IconButton
-                as="a"
-                href="/chat"
+                as={Link}
+                to="/chat"
                 icon={<FaComments />}
                 variant="ghost"
                 colorScheme="brand"
@@ -241,7 +243,7 @@ export default function Navbar({ auth, setAuth }) {
                   </VStack>
                   <MenuDivider />
                   <MenuItem 
-                    onClick={() => window.location.href = '/editprofile'} 
+                    onClick={() => navigate('/editprofile')} 
                     borderRadius="xl" 
                     py={3}
                     icon={<Icon as={FaUser} color="brand.500" />}
@@ -250,7 +252,7 @@ export default function Navbar({ auth, setAuth }) {
                     View Profile
                   </MenuItem>
                   <MenuItem 
-                    onClick={() => window.location.href = '/myads'} 
+                    onClick={() => navigate('/myads')} 
                     borderRadius="xl" 
                     py={3}
                     icon={<Icon as={FaHeart} color="pink.500" />}
@@ -260,7 +262,7 @@ export default function Navbar({ auth, setAuth }) {
                   </MenuItem>
                   {isAdmin && (
                     <MenuItem 
-                      onClick={() => window.location.href = '/admin'} 
+                      onClick={() => navigate('/admin')} 
                       borderRadius="xl" 
                       py={3}
                       icon={<Icon as={FaShieldAlt} color="purple.500" />}
@@ -293,8 +295,8 @@ export default function Navbar({ auth, setAuth }) {
             )}
 
             <Button
-              as="a"
-              href="/sell"
+              as={Link}
+              to="/sell"
               leftIcon={<FaPlus />}
               bgGradient="linear(135deg, #d946ef 0%, #c026d3 100%)"
               color="white"
@@ -348,25 +350,25 @@ export default function Navbar({ auth, setAuth }) {
                 </InputGroup>
               </form>
               
-              <Button as="a" href="/" variant="ghost" justifyContent="flex-start">
+              <Button as={Link} to="/" variant="ghost" justifyContent="flex-start" onClick={onClose}>
                 Home
               </Button>
-              <Button as="a" href="/Electronics & Appliances" variant="ghost" justifyContent="flex-start">
+              <Button as={Link} to="/Electronics & Appliances" variant="ghost" justifyContent="flex-start" onClick={onClose}>
                 Electronics
               </Button>
-              <Button as="a" href="/OLX Autos (Cars)" variant="ghost" justifyContent="flex-start">
+              <Button as={Link} to="/OLX Autos (Cars)" variant="ghost" justifyContent="flex-start" onClick={onClose}>
                 Cars
               </Button>
               
               {auth ? (
                 <>
-                  <Button as="a" href="/chat" variant="ghost" justifyContent="flex-start" leftIcon={<FaComments />}>
+                  <Button as={Link} to="/chat" variant="ghost" justifyContent="flex-start" leftIcon={<FaComments />} onClick={onClose}>
                     Messages
                   </Button>
-                  <Button as="a" href="/myads" variant="ghost" justifyContent="flex-start" leftIcon={<FaHeart />}>
+                  <Button as={Link} to="/myads" variant="ghost" justifyContent="flex-start" leftIcon={<FaHeart />} onClick={onClose}>
                     My Ads
                   </Button>
-                  <Button as="a" href="/editprofile" variant="ghost" justifyContent="flex-start" leftIcon={<FaUser />}>
+                  <Button as={Link} to="/editprofile" variant="ghost" justifyContent="flex-start" leftIcon={<FaUser />} onClick={onClose}>
                     Profile
                   </Button>
                   <Button onClick={handleLogout} variant="ghost" justifyContent="flex-start" leftIcon={<FaSignOutAlt />} color="red.500">
@@ -380,13 +382,14 @@ export default function Navbar({ auth, setAuth }) {
               )}
               
               <Button
-                as="a"
-                href="/sell"
+                as={Link}
+                to="/sell"
                 leftIcon={<FaPlus />}
                 bgGradient="linear(135deg, #d946ef 0%, #c026d3 100%)"
                 color="white"
                 borderRadius="full"
                 size="lg"
+                onClick={onClose}
               >
                 Sell Now
               </Button>

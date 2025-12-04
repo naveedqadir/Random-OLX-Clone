@@ -1,4 +1,5 @@
 import React from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Container,
@@ -41,7 +42,8 @@ const SocialButton = ({ icon, href, color }) => {
 const FooterLink = ({ children, href = "/" }) => {
   return (
     <Link
-      href={href}
+      as={RouterLink}
+      to={href}
       fontSize="sm"
       color="gray.400"
       transition="all 0.2s"

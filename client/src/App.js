@@ -113,48 +113,47 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <div className="App">
 
-      {/* USE NAVBAR */}
-      <Navbar auth={auth} setAuth={setAuth} />
+        {/* USE NAVBAR */}
+        <Navbar auth={auth} setAuth={setAuth} />
 
-     {/* routes */}
-     {backendStatus === 'online' ? (
-     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-  <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/adsuccess" element={<AdSuccess />} />
-    <Route path="/preview_ad/:id" element={<PreviewAd auth={auth} />} />
-    <Route path="/attributes/:category/:item" element={<SellForm />} />
-    {auth === true && <Route path="/chat/:id/:useremail" element={<MyChat />} />}
-    {auth === true && <Route path="/chat" element={<MyChat />} />}
-    {auth === true && <Route path="/editprofile" element={<UserProfileEdit />} />}
-    {auth === true && <Route path="/profile" element={<Profile />} />}
-    {auth === true && <Route path="/myads" element={<Myads />} />}
-    {auth === true && <Route path="/sell" element={<Sell />} />}
-    {auth === true && <Route path="/admin" element={<AdminDashboard />} />}
-    {auth === false && <Route path="/sell" element={[<Modallogin setStaticModal={setStaticModal} toggleShow={toggleShow} staticModal={staticModal} />, <Home />]} />}
-    <Route path="/:category" element={<CatagoryView />} />
-    <Route path="/results" element={<SearchResults />} />
-    <Route path="/profile/:useremail" element={<SearchProfile />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/privacy" element={<PrivacyPolicy />} />
-    <Route path="/terms" element={<TermsOfService />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/help" element={<HelpCenter />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-</Router>
-      ) : (
-        // Render the maintenance page when the backend is down
-        <MaintenancePage />
-      )}
+        {/* routes */}
+        {backendStatus === 'online' ? (
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/adsuccess" element={<AdSuccess />} />
+            <Route path="/preview_ad/:id" element={<PreviewAd auth={auth} />} />
+            <Route path="/attributes/:category/:item" element={<SellForm />} />
+            {auth === true && <Route path="/chat/:id/:useremail" element={<MyChat />} />}
+            {auth === true && <Route path="/chat" element={<MyChat />} />}
+            {auth === true && <Route path="/editprofile" element={<UserProfileEdit />} />}
+            {auth === true && <Route path="/profile" element={<Profile />} />}
+            {auth === true && <Route path="/myads" element={<Myads />} />}
+            {auth === true && <Route path="/sell" element={<Sell />} />}
+            {auth === true && <Route path="/admin" element={<AdminDashboard />} />}
+            {auth === false && <Route path="/sell" element={[<Modallogin setStaticModal={setStaticModal} toggleShow={toggleShow} staticModal={staticModal} />, <Home />]} />}
+            <Route path="/:category" element={<CatagoryView />} />
+            <Route path="/results" element={<SearchResults />} />
+            <Route path="/profile/:useremail" element={<SearchProfile />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        ) : (
+          // Render the maintenance page when the backend is down
+          <MaintenancePage />
+        )}
 
+        {/* USE FOOTER */}
+        <Footer />
 
-      {/* USE FOOTER */}
-      <Footer />
-
-    </div>
+      </div>
+    </Router>
   );
 }
 

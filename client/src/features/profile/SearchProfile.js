@@ -12,7 +12,7 @@ import {
   VStack
 } from "@chakra-ui/react";
 import CatNavbar from "../../components/layout/CatNavbar";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ProductCardProfile from "../ads/ProductCards/ProductCardProfile";
@@ -22,6 +22,7 @@ import { getAvatarProps } from "../../utils/imageUtils";
 import { FiShare2, FiPackage, FiUser } from "react-icons/fi";
 
 export default function SearchProfile() {
+  const navigate = useNavigate();
   const { useremail } = useParams();
   const [profileData, setProfileData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -31,7 +32,7 @@ export default function SearchProfile() {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   if (useremail === localStorage.getItem("authemail")) {
-    window.location.href = "/profile";
+    navigate("/profile");
   }
   useEffect(() => {
     window.scrollTo(0, 0);

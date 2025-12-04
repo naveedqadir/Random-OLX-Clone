@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -39,6 +40,7 @@ const features = [
 ];
 
 function Home() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleproducts, setVisibleProducts] = useState(8);
@@ -65,7 +67,7 @@ function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/results?query=${encodeURIComponent(searchQuery)}`;
+      navigate(`/results?query=${encodeURIComponent(searchQuery)}`);
     }
   };
 

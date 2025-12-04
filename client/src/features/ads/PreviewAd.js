@@ -130,7 +130,7 @@ const PreviewAd = ({auth}) => {
   
   const handleClick = async function(){
     if(auth){
-     window.location.href = `/chat/${id}/${data.useremail}`
+     navigate(`/chat/${id}/${data.useremail}`)
     }
     else{
     toggleShow();
