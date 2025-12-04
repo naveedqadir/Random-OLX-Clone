@@ -87,7 +87,7 @@ export default function UserProfileEdit() {
       setEmail(storedEmail);
       setAuthemail(storedEmail);
     }
-    if (storedPhone) {
+    if (storedPhone && storedPhone !== 'undefined' && storedPhone !== 'null') {
       setPhoneNumber(storedPhone);
     }
     if (storedPicture) setPicture(storedPicture);

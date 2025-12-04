@@ -45,8 +45,8 @@ app.post("/google-auth", (req, res) => {
                   token,
                   email: user.email,
                   name: user.name,
-                  picture: user.picture,
-                  phone: user.phonenumber,
+                  picture: user.picture || "",
+                  phone: user.phonenumber || "",
                 });
             } else {
               const newUser = new User({
@@ -73,8 +73,8 @@ app.post("/google-auth", (req, res) => {
                       token,
                       email: result.email,
                       name,
-                      picture,
-                      phone: result.phonenumber,
+                      picture: picture || "",
+                      phone: result.phonenumber || "",
                     });
                 })
                 .catch((error) => {

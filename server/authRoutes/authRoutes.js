@@ -123,8 +123,8 @@ app.post("/register", (request, response) => {
               email: user.email,
               token,
               name: user.name,
-              picture: user.picture,
-              phone: user.phonenumber,
+              picture: user.picture || "",
+              phone: user.phonenumber || "",
             });
           })
           // catch error if password does not match

@@ -198,7 +198,7 @@ export default function Modallogin({staticModal, setStaticModal, toggleShow}) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('authemail', response.data.email);
         localStorage.setItem('authname', response.data.name);
-        localStorage.setItem('authphone', response.data.phone);
+        localStorage.setItem('authphone', response.data.phone || '');
         localStorage.setItem('authpicture', getSafeImageUrl(response.data.picture, 96));
         window.location.href = '/';
       })
