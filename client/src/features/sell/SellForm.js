@@ -293,13 +293,21 @@ async function handleFormSubmit(event) {
                   borderRadius="full"
                   bg="rgba(255,255,255,0.1)"
                 />
-                <HStack justify="space-between" position="relative" zIndex={1}>
-                  <VStack align="start" spacing={2}>
-                    <HStack>
-                      <Icon as={FiTag} w={8} h={8} color="white" />
-                      <Heading color="white" size="xl">Post Your Ad</Heading>
+                <Box
+                  display="flex"
+                  flexDirection={{ base: "column", md: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ base: "flex-start", md: "center" }}
+                  gap={4}
+                  position="relative"
+                  zIndex={1}
+                >
+                  <VStack align="start" spacing={2} flex="1" minW={0}>
+                    <HStack flexWrap="wrap">
+                      <Icon as={FiTag} w={8} h={8} color="white" flexShrink={0} />
+                      <Heading color="white" size={{ base: "lg", md: "xl" }}>Post Your Ad</Heading>
                     </HStack>
-                    <HStack>
+                    <HStack flexWrap="wrap" gap={2}>
                       <Badge
                         bg="rgba(255,255,255,0.2)"
                         color="white"
@@ -308,6 +316,8 @@ async function handleFormSubmit(event) {
                         borderRadius="full"
                         fontSize="sm"
                         textTransform="capitalize"
+                        maxW="150px"
+                        isTruncated
                       >
                         {category}
                       </Badge>
@@ -319,6 +329,8 @@ async function handleFormSubmit(event) {
                         py={1}
                         borderRadius="full"
                         fontSize="sm"
+                        maxW="150px"
+                        isTruncated
                       >
                         {item}
                       </Badge>
@@ -331,11 +343,13 @@ async function handleFormSubmit(event) {
                     onClick={handleClick}
                     _hover={{ bg: 'rgba(255,255,255,0.2)' }}
                     borderRadius="xl"
+                    flexShrink={0}
+                    alignSelf={{ base: "flex-start", md: "center" }}
                   >
                     Change
                   </Button>
-                </HStack>
-                {showComponent && <Box mt={6}><Sell /></Box>}
+                </Box>
+                {showComponent && <Box mt={4}><Sell embedded={true} /></Box>}
               </Box>
 
               {/* Main Form */}

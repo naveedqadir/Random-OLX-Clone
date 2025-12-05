@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { categories } from "../../components/common/Catagories";
 import { FaCamera, FaRocket, FaShieldAlt, FaTag, FaChevronRight } from "react-icons/fa";
 
-function Sell() {
+function Sell({ embedded = false }) {
   const navigate = useNavigate();
   
   const handleClick = (category, item) => {
@@ -32,6 +32,118 @@ function Sell() {
     { icon: FaRocket, title: 'Quick Sell', desc: 'Reach buyers instantly' },
     { icon: FaShieldAlt, title: 'Secure', desc: 'Safe transactions' },
   ];
+
+  // When embedded in SellForm, only show the category selector
+  if (embedded) {
+    return (
+      <Box 
+        bg="white" 
+        borderRadius="xl" 
+        shadow="lg"
+        overflow="hidden"
+        mt={4}
+      >
+        <Box p={4} borderBottom="1px" borderColor="gray.100">
+          <Heading 
+            size="md" 
+            fontWeight="700"
+            color="gray.700"
+            textAlign="center"
+          >
+            Select a different category
+          </Heading>
+        </Box>
+        
+        <Box p={4} maxH="400px" overflowY="auto">
+          <Accordion allowToggle>
+            {categories.map(({ title, items }, index) => (
+              <AccordionItem 
+                key={index} 
+                border="none" 
+                mb={2}
+              >
+                <h2>
+                  <AccordionButton 
+                    bg="gray.50"
+                    _expanded={{ 
+                      bgGradient: "linear(135deg, rgba(14, 165, 233, 0.1), rgba(124, 58, 237, 0.1))",
+                    }}
+                    borderRadius="lg"
+                    _hover={{ bg: "gray.100" }}
+                    p={4}
+                    transition="all 0.2s"
+                  >
+                    <HStack flex="1" spacing={3}>
+                      <Box
+                        w={8}
+                        h={8}
+                        borderRadius="lg"
+                        bgGradient="linear(135deg, #0ea5e9, #7c3aed)"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text color="white" fontWeight="800" fontSize="xs">
+                          {title.charAt(0)}
+                        </Text>
+                      </Box>
+                      <Text fontWeight="600" fontSize="md" color="gray.700">
+                        {title}
+                      </Text>
+                      <Badge 
+                        colorScheme="purple" 
+                        variant="subtle" 
+                        borderRadius="full"
+                        px={2}
+                        fontSize="xs"
+                      >
+                        {items.length}
+                      </Badge>
+                    </HStack>
+                    <AccordionIcon color="gray.400" />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={3} pt={3}>
+                  <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={2}>
+                    {items.map((item, i) => (
+                      <Button 
+                        key={`${title}-${i}-${item}`} 
+                        variant="ghost"
+                        justifyContent="space-between"
+                        onClick={() => handleClick(title, item)}
+                        bg="white"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        _hover={{ 
+                          bg: "purple.50", 
+                          borderColor: "purple.200", 
+                          color: "purple.700",
+                          transform: "translateX(4px)"
+                        }}
+                        h="auto"
+                        py={3}
+                        px={3}
+                        whiteSpace="normal"
+                        textAlign="left"
+                        fontWeight="500"
+                        color="gray.600"
+                        borderRadius="lg"
+                        transition="all 0.2s"
+                        fontSize="sm"
+                        rightIcon={<FaChevronRight size={10} />}
+                      >
+                        {item}
+                      </Button>
+                    ))}
+                  </SimpleGrid>
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box minH="100vh">
