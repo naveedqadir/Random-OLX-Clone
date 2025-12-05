@@ -33,7 +33,7 @@ import Inbox from "./Inbox";
 import FetchChat from "./FetchChat";
 import SendChat from "./SendChat";
 import Loading from "../../components/common/Loading";
-import { getAvatarProps } from "../../utils/imageUtils";
+import { getSafeImageUrl } from "../../utils/imageUtils";
 
 export default function MyChat() {
   const { id, useremail } = useParams();
@@ -182,7 +182,8 @@ export default function MyChat() {
                     >
                       <Box position="relative" mr={4}>
                         <Avatar
-                          {...getAvatarProps(product.ownerpicture, 48)}
+                          src={getSafeImageUrl(profileData.picture, 48)}
+                          name={profileData.name || "Unknown User"}
                           size="md"
                           ring={2}
                           ringColor="purple.100"
