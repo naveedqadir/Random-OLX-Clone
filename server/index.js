@@ -28,14 +28,20 @@ cloudinary.config({
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
+// MongoDB connection - server starts only after successful connection
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000, // Timeout after 30 seconds
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    });
     console.log("✅ Connected to MongoDB");
-  })
-  .catch((error) => {
+    return true;
+  } catch (error) {
     console.error("❌ MongoDB connection error:", error.message);
-  });
+    return false;
+  }
+};
 
 app.use('/', authRoutes); 
 app.use('/', googleAuthRoutes);
@@ -242,7 +248,31 @@ app.get("/getProductsbyemail", async (req, res) => {
   res.status(200).send(products);
 });
 
+// Start server only after MongoDB connection is established
+const startServer = async () => {
+  const connected = await connectDB();
+  
+  if (connected) {
+    app.listen(process.env.PORT || 5000, () => {
+      console.log(`🚀 Server running on port ${process.env.PORT || 5000}`);
+    });
+  } else {
+    console.error("❌ Failed to connect to MongoDB. Server not started.");
+    process.exit(1);
+  }
+};
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`🚀 Server running on port ${process.env.PORT || 5000}`);
+// Handle MongoDB connection events
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected. Attempting to reconnect...');
 });
+
+mongoose.connection.on('reconnected', () => {
+  console.log('✅ MongoDB reconnected');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB connection error:', err.message);
+});
+
+startServer();
